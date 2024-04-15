@@ -215,8 +215,8 @@ function Dashboard(){
 <tr>
 <th>Patient Name</th>
 <th>Appt Date</th>
-<th>Purpose</th>
-<th>Type</th>
+<th>Patient Number</th>
+<th>Departments</th>
 <th>Paid Amount</th>
 <th>Action</th>
 </tr>
@@ -232,7 +232,7 @@ function Dashboard(){
                                                     <a href="patient-profile.html">{booking.patientName}</a>
                                                 </h2>
                                             </td>
-                                            <td>{booking.date}</td>
+                                            <td>{booking.date}<span class="d-block text-info">10.00 AM</span></td>
                                             <td>{booking.purpose}</td>
                                             <td>{booking.type}</td>
                                             <td>${booking.paidAmount}</td>
