@@ -98,7 +98,7 @@ function Dashboard(){
                                             <td>
                                                 <h2 className="table-avatar">
                                                     <a href="" className="avatar avatar-sm me-2">
-                                                        <img className="avatar-img rounded-circle" src="assets/img/doctors/anonymous-user.webp" alt="User Image" />
+                                                        <img className="avatar-img rounded-circle" src="assets/img/patients/ava.jpg" alt="User Image" />
                                                     </a>
                                                     <a href="">{patient.find(p => p.id === booking.patientId)?.name}</a>
                                                 </h2>
