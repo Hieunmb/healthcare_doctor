@@ -3,7 +3,7 @@ import api from "../../services/api";
 import url from "../../services/url";
 function Dashboard(){
     const [bookings, setBookings] = useState([]);
-
+    const [shifts, setShifts] = useState({});
     useEffect(() => {
         // Call your API to fetch booking data
         const fetchBookings = async () => {
@@ -16,7 +16,21 @@ function Dashboard(){
             }
         };
 
+        const fetchShifts = async () => {
+            try {
+                const response = await api.get(url.SHIFT.LIST); // Replace with your API endpoint for shifts
+                const shiftsData = {};
+                response.data.forEach(shift => {
+                    shiftsData[shift.id] = shift.name;
+                });
+                setShifts(shiftsData);
+            } catch (error) {
+                console.error("Error fetching shifts:", error);
+            }
+        };
+
         fetchBookings();
+        fetchShifts();
     }, []);
     const handleAccept = async (bookingId) => {
         try {
@@ -232,7 +246,7 @@ function Dashboard(){
                                                     <a href="patient-profile.html">{booking.patientName}</a>
                                                 </h2>
                                             </td>
-                                            <td>{booking.date}<span class="d-block text-info">10.00 AM</span></td>
+                                            <td>{booking.date}<span class="d-block text-info">{shifts[booking.shiftId]}</span></td>
                                             <td>{booking.purpose}</td>
                                             <td>{booking.type}</td>
                                             <td>${booking.paidAmount}</td>
