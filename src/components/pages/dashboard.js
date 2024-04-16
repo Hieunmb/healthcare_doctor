@@ -4,6 +4,8 @@ import url from "../../services/url";
 function Dashboard(){
     const [bookings, setBookings] = useState([]);
     const [shifts, setShifts] = useState({});
+    const [patient, setPatient] = useState([]);
+    const [departments, setDepartments] = useState([]);
     useEffect(() => {
         // Call your API to fetch booking data
         const fetchBookings = async () => {
@@ -11,6 +13,16 @@ function Dashboard(){
                 const response = await api.get(url.BOOKING.LIST); // Replace with your API endpoint
                 const filteredBookings = response.data.filter(booking => booking.status === 2);
                 setBookings(filteredBookings);
+                const uniquePatientIds = [...new Set(filteredBookings.map(booking => booking.patientId))];
+            
+            // Fetch patient data based on unique patientIds
+            const patientsResponse = await api.get(`${url.PATIENT.REGISTER}?ids=${uniquePatientIds.join(',')}`);
+            setPatient(patientsResponse.data);
+            const uniqueDepartmentIds = [...new Set(filteredBookings.map(booking => booking.departmentId))];
+            
+            // Fetch department data based on unique departmentIds
+            const departmentsResponse = await api.get(`${url.DEPARTMENT.LIST}?ids=${uniqueDepartmentIds.join(',')}`);
+            setDepartments(departmentsResponse.data);
             } catch (error) {
                 console.error("Error fetching bookings:", error);
             }
@@ -21,23 +33,26 @@ function Dashboard(){
                 const response = await api.get(url.SHIFT.LIST); // Replace with your API endpoint for shifts
                 const shiftsData = {};
                 response.data.forEach(shift => {
-                    shiftsData[shift.id] = shift.name;
+                    shiftsData[shift.id] = shift.time;
                 });
                 setShifts(shiftsData);
             } catch (error) {
                 console.error("Error fetching shifts:", error);
             }
         };
-
         fetchBookings();
         fetchShifts();
     }, []);
     const handleAccept = async (bookingId) => {
         try {
             await api.put(`${url.BOOKING.UPDATE}${bookingId}`);
+            await api.post(`${url.RESULT.CREATE}`, {
+                bookingId: bookingId,
+                doctorId: 1
+            });
             // Update bookings state or fetch updated data from the API
             const updatedBookings = bookings.map(booking => 
-                booking.id === bookingId ? { ...booking, status: '3' } : booking
+                booking.id === bookingId ? { ...booking, status: '2' } : booking
             );
             setBookings(updatedBookings);
             alert("Doctor has accepted the patient.");
@@ -47,113 +62,7 @@ function Dashboard(){
         }
     };
     return(
-        <div className="content">
-<div className="container">
-<div className="row">
-<div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
-
-<div className="profile-sidebar">
-<div className="widget-profile pro-widget-content">
-<div className="profile-info-widget">
-<a href="#" className="booking-doc-img">
-<img src="assets/img/doctors/anonymous-user.webp" alt="User Image"/>
-</a>
-<div className="profile-det-info">
-<h3>Dr. Darren Elder</h3>
-<div className="patient-details">
-<h5 className="mb-0">BDS, MDS - Oral & Maxillofacial Surgery</h5>
-</div>
-</div>
-</div>
-</div>
-<div className="dashboard-widget">
-<nav className="dashboard-menu">
-<ul>
-<li className="active">
-<a href="doctor-dashboard.html">
-<i className="fas fa-columns"></i>
-<span>Dashboard</span>
-</a>
-</li>
-<li>
-<a href="appointments.html">
-<i className="fas fa-calendar-check"></i>
-<span>Appointments</span>
-</a>
-</li>
-<li>
-<a href="my-patients.html">
-<i className="fas fa-user-injured"></i>
-<span>My Patients</span>
-</a>
-</li>
-<li>
-<a href="schedule-timings.html">
-<i className="fas fa-hourglass-start"></i>
-<span>Schedule Timings</span>
-</a>
-</li>
-<li>
-<a href="available-timings.html">
-<i className="fas fa-clock"></i>
-<span>Available Timings</span>
-</a>
-</li>
-<li>
-<a href="invoices.html">
-<i className="fas fa-file-invoice"></i>
-<span>Invoices</span>
-</a>
-</li>
-<li>
-<a href="accounts.html">
-<i className="fas fa-file-invoice-dollar"></i>
-<span>Accounts</span>
-</a>
-</li>
-<li>
-<a href="reviews.html">
-<i className="fas fa-star"></i>
-<span>Reviews</span>
-</a>
-</li>
-<li>
-<a href="chat-doctor.html">
-<i className="fas fa-comments"></i>
-<span>Message</span>
-<small className="unread-msg">23</small>
-</a>
-</li>
-<li>
-<a href="doctor-profile-settings.html">
-<i className="fas fa-user-cog"></i>
-<span>Profile Settings</span>
-</a>
-</li>
-<li>
-<a href="social-media.html">
-<i className="fas fa-share-alt"></i>
-<span>Social Media</span>
-</a>
-</li>
-<li>
-<a href="doctor-change-password.html">
-<i className="fas fa-lock"></i>
-<span>Change Password</span>
-</a>
-</li>
-<li>
-<a href="login.html">
-<i className="fas fa-sign-out-alt"></i>
-<span>Logout</span>
-</a>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-
-</div>
+   
 <div className="col-md-7 col-lg-8 col-xl-9">
 <div className="row">
 <div className="col-md-12">
@@ -179,7 +88,7 @@ function Dashboard(){
 <th>Appt Date</th>
 <th>Patient Number</th>
 <th>Departments</th>
-<th>Paid Amount</th>
+<th>Gender</th>
 <th>Action</th>
 </tr>
 </thead>
@@ -188,26 +97,21 @@ function Dashboard(){
                                         <tr key={index}>
                                             <td>
                                                 <h2 className="table-avatar">
-                                                    <a href="patient-profile.html" className="avatar avatar-sm me-2">
+                                                    <a href="" className="avatar avatar-sm me-2">
                                                         <img className="avatar-img rounded-circle" src="assets/img/doctors/anonymous-user.webp" alt="User Image" />
                                                     </a>
-                                                    <a href="patient-profile.html">{booking.patientName}</a>
+                                                    <a href="">{patient.find(p => p.id === booking.patientId)?.name}</a>
                                                 </h2>
                                             </td>
                                             <td>{booking.date}<span class="d-block text-info">{shifts[booking.shiftId]}</span></td>
-                                            <td>{booking.purpose}</td>
-                                            <td>{booking.type}</td>
-                                            <td>${booking.paidAmount}</td>
+                                            <td>{patient.find(p => p.id === booking.patientId)?.phonenumber}</td>
+                                            <td>{departments.find(dept => dept.id === booking.departmentId)?.name}</td>
+                                            <td>{patient.find(p => p.id === booking.patientId)?.gender}</td>
                                             <td>
                                                 <div className="table-action">
-                                                    <a href="javascript:void(0);" className="btn btn-sm bg-info-light">
-                                                        <i className="far fa-eye"></i> View
-                                                    </a>
+                                                    
                                                     <a href="javascript:void(0);" className="btn btn-sm bg-success-light" onClick={() => handleAccept(booking.id)}>
                                                         <i className="fas fa-check"></i> Accept
-                                                    </a>
-                                                    <a href="javascript:void(0);" className="btn btn-sm bg-danger-light">
-                                                        <i className="fas fa-times"></i> Cancel
                                                     </a>
                                                 </div>
                                             </td>
@@ -227,9 +131,7 @@ function Dashboard(){
 </div>
 </div>
 </div>
-</div>
-</div>
-</div>
+
     )
 }
 export default Dashboard;

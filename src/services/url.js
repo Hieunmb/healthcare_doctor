@@ -14,6 +14,10 @@ const url ={
         CREATE:"/bookings",
         LIST:"/bookings",
         UPDATE:"/bookings/updateStatus/",
+    },
+    RESULT:{
+        LIST:"/results",
+        CREATE:"/results"
     }
 }
 export default url;
