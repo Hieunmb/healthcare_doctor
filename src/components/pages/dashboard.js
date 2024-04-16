@@ -103,7 +103,7 @@ function Dashboard(){
                                                     <a href="">{patient.find(p => p.id === booking.patientId)?.name}</a>
                                                 </h2>
                                             </td>
-                                            <td>{booking.date}<span class="d-block text-info">{shifts[booking.shiftId]}</span></td>
+                                            <td>{booking.date}<span className="d-block text-info">{shifts[booking.shiftId]}</span></td>
                                             <td>{patient.find(p => p.id === booking.patientId)?.phonenumber}</td>
                                             <td>{departments.find(dept => dept.id === booking.departmentId)?.name}</td>
                                             <td>{patient.find(p => p.id === booking.patientId)?.gender}</td>
