@@ -8,44 +8,44 @@ function Appoinment() {
     const [patients, setPatients] = useState([]);
 
     useEffect(() => {
-        const fetchResults = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get(`${url.RESULT.LIST}?booking.status=3&doctorId=1`); // Updated API endpoint with query parameters
-                const filteredResults = response.data.filter(result => result.doctorId === 1);
+                // Fetch all data simultaneously
+                const [resultsResponse, bookingsResponse, patientsResponse] = await Promise.all([
+                    api.get(`${url.RESULT.LIST}?booking.status=3&doctorId=1`),
+                    api.get(url.BOOKING.LIST),
+                    api.get(url.PATIENT.REGISTER)
+                ]);
+
+                const filteredResults = resultsResponse.data.filter(result => result.doctorId === 1);
                 setResults(filteredResults);
+                setBookings(bookingsResponse.data);
+                setPatients(patientsResponse.data);
             } catch (error) {
-                console.error("Error fetching results:", error);
+                console.error("Error fetching data:", error);
             }
         };
 
-        const fetchBookings = async () => {
-            try {
-                const response = await api.get(url.BOOKING.LIST); // Fetch all bookings
-                setBookings(response.data);
-            } catch (error) {
-                console.error("Error fetching bookings:", error);
-            }
-        };
-        const fetchPatients = async () => {
-            try {
-                const response = await api.get(url.PATIENT.REGISTER); // Assuming this is the correct endpoint
-                setPatients(response.data);
-            } catch (error) {
-                console.error("Error fetching patients:", error);
-            }
-        };
-
-        fetchPatients();
-        fetchResults();
-        fetchBookings();
+        fetchData();
     }, []);
+
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             <div className="appointments">
                 {results.map((result, index) => {
                     // Find the matching booking for the result
                     const booking = bookings.find(booking => booking.id === result.bookingId);
+                    
+                    if (!booking) {
+                        return null; // Skip this result if there's no matching booking
+                    }
+
+                    // Find the matching patient for the booking
                     const patient = patients.find(patient => patient.id === booking.patientId);
+
+                    if (!patient) {
+                        return null; // Skip this result if there's no matching patient
+                    }
 
                     return (
                         <div className="appointment-list" key={index}>
@@ -57,9 +57,9 @@ function Appoinment() {
                                     <h3><a href="patient-profile.html">{patient.name}</a></h3>
                                     <div className="patient-details">
                                         <h5><i className="far fa-clock"></i> {booking.date}</h5>
-                                        <h5><i className="fas fa-map-marker-alt"></i> {result.location}</h5>
-                                        <h5><i className="fas fa-envelope"></i> {result.email}</h5>
-                                        <h5 className="mb-0"><i className="fas fa-phone"></i> {result.phoneNumber}</h5>
+                                        <h5><i className="fas fa-map-marker-alt"></i> {patient.address}</h5>
+                                        <h5><i className="fas fa-envelope"></i> {patient.email}</h5>
+                                        <h5 className="mb-0"><i className="fas fa-phone"></i> {patient.phonenumber}</h5>
                                     </div>
                                 </div>
                             </div>
