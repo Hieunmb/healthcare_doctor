@@ -23,7 +23,7 @@ function Widget() {
                 <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
                         <div className="booking-doc-img">
-                            <img src="assets/img/doctors/anonymous-user.webp" alt="User Image" />
+                            <img src="../assets/img/doctors/anonymous-user.webp" alt="User Image" />
                         </div>
                         <div className="profile-det-info">
                             <h3>Dr. Darren Elder</h3>

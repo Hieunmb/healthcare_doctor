@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import url from "../../services/url";
+import { useNavigate } from "react-router-dom";
 
 function Appoinment() {
     const [results, setResults] = useState([]);
@@ -28,7 +29,10 @@ function Appoinment() {
 
         fetchData();
     }, []);
-
+    const navigate = useNavigate();
+    const handleCreateTest = (bookingId) => {
+        navigate(`/test/${bookingId}`);  // <-- Navigate to /test/:bookingId using navigate
+    };
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             <div className="appointments">
@@ -64,14 +68,11 @@ function Appoinment() {
                                 </div>
                             </div>
                             <div className="appointment-action">
-                                <a href="#" className="btn btn-sm bg-info-light" data-bs-toggle="modal" data-bs-target="#appt_details">
-                                    <i className="far fa-eye"></i> View
-                                </a>
                                 <a href="javascript:void(0);" className="btn btn-sm bg-success-light">
-                                    <i className="fas fa-check"></i> Accept
+                                <i class="fa-regular fa-pen-to-square"></i> Result
                                 </a>
-                                <a href="javascript:void(0);" className="btn btn-sm bg-danger-light">
-                                    <i className="fas fa-times"></i> Cancel
+                                <a href="" onClick={() => handleCreateTest(result.id)} className="btn btn-sm bg-info-light">
+                                <i class="fa-solid fa-plus"></i> Create test
                                 </a>
                             </div>
                         </div>
