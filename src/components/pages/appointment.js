@@ -4,7 +4,12 @@ import url from "../../services/url";
 import { useNavigate } from "react-router-dom";
 
 function Appoinment() {
-    const [results, setResults] = useState([]);
+    const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
+    const [doctors,setDoctors]=useState({
+        id:0,
+        name:''
+    });
+    const [results, setResults] = useState([{}]);
     const [bookings, setBookings] = useState([]);
     const [patients, setPatients] = useState([]);
 
@@ -13,22 +18,31 @@ function Appoinment() {
             try {
                 // Fetch all data simultaneously
                 const [resultsResponse, bookingsResponse, patientsResponse] = await Promise.all([
-                    api.get(`${url.RESULT.LIST}?booking.status=3&doctorId=1`),
+                    api.get(url.RESULT.LIST),
                     api.get(url.BOOKING.LIST),
                     api.get(url.PATIENT.REGISTER)
                 ]);
-
-                const filteredResults = resultsResponse.data.filter(result => result.doctorId === 1);
+    
+                const doctorResponse = await api.get(url.DOCTOR.PROFILE, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+    
+                const filteredResults = resultsResponse.data.filter(result => result.doctorId === doctorResponse.data.id);
+                
                 setResults(filteredResults);
                 setBookings(bookingsResponse.data);
                 setPatients(patientsResponse.data);
+                setDoctors(doctorResponse.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
-
+        
         fetchData();
     }, []);
+    
     const navigate = useNavigate();
     const handleCreateTest = (bookingId) => {
         navigate(`/test/${bookingId}`);  // <-- Navigate to /test/:bookingId using navigate

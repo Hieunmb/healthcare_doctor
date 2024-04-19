@@ -12,6 +12,9 @@ function BreadCrumb({ currentLocation }){
         case '/':
           breadcrumbName = 'Dashboard';
           break;
+          case '/appointment':
+          breadcrumbName = 'Appointment';
+          break;
     }
 
     return(

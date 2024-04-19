@@ -6,6 +6,8 @@ function Dashboard(){
     const [shifts, setShifts] = useState({});
     const [patient, setPatient] = useState([]);
     const [departments, setDepartments] = useState([]);
+    const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
+    const [doctors,setDoctors]=useState([]);
     useEffect(() => {
         // Call your API to fetch booking data
         const fetchBookings = async () => {
@@ -40,6 +42,19 @@ function Dashboard(){
                 console.error("Error fetching shifts:", error);
             }
         };
+        const fetchDoctorProfile = async () => {
+            try {
+                const response = await api.get(url.DOCTOR.PROFILE, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                setDoctors(response.data)
+            } catch (error) {
+                console.error("Error fetching doctor profile:", error);
+            }
+        };
+fetchDoctorProfile();
         fetchBookings();
         fetchShifts();
     }, []);
@@ -48,7 +63,7 @@ function Dashboard(){
             await api.put(`${url.BOOKING.UPDATE}${bookingId}`);
             await api.post(`${url.RESULT.CREATE}`, {
                 bookingId: bookingId,
-                doctorId: 1
+                doctorId: doctors.id
             });
             // Update bookings state or fetch updated data from the API
             const updatedBookings = bookings.map(booking => 

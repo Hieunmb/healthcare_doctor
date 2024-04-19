@@ -18,6 +18,10 @@ const url ={
     RESULT:{
         LIST:"/results",
         CREATE:"/results"
+    },
+    DOCTOR:{
+        LOGIN:"/doctors/login",
+        PROFILE:"doctors/profile"
     }
 }
 export default url;

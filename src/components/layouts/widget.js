@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../../services/api';
+import url from '../../services/url';
 
 function Widget() {
     const [activeLink, setActiveLink] = useState('/'); // Initial active link
     const navigate = useNavigate();
     const location = useLocation();
-
+    const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
+    const [doctors,setDoctors]=useState([]);
     useEffect(() => {
         // Update active link based on the current pathname
         const path = location.pathname.split('/')[1]; // Get first part of the pathname
@@ -16,6 +19,21 @@ function Widget() {
         setActiveLink(path);
         navigate(`/${path}`);
     };
+    useEffect(() => {
+        const fetchDoctorProfile = async () => {
+            try {
+                const response = await api.get(url.DOCTOR.PROFILE, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                setDoctors(response.data)
+            } catch (error) {
+                console.error("Error fetching doctor profile:", error);
+            }
+        };
+fetchDoctorProfile();
+    }, []);
 
     return (
         <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
@@ -23,12 +41,12 @@ function Widget() {
                 <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
                         <div className="booking-doc-img">
-                            <img src="../assets/img/doctors/anonymous-user.webp" alt="User Image" />
+                            <img src={doctors.thumbnail} alt="User Image" />
                         </div>
                         <div className="profile-det-info">
-                            <h3>Dr. Darren Elder</h3>
+                            <h3>{doctors.name}</h3>
                             <div className="patient-details">
-                                <h5 className="mb-0">BDS, MDS - Oral & Maxillofacial Surgery</h5>
+                                <h5 className="mb-0">{doctors.email}</h5>
                             </div>
                         </div>
                     </div>
@@ -64,12 +82,6 @@ function Widget() {
                                 <a onClick={() => handleNavigation('doctor-change-password')}>
                                     <i className="fas fa-lock"></i>
                                     <span>Change Password</span>
-                                </a>
-                            </li>
-                            <li className={activeLink === 'login' ? 'active' : ''}>
-                                <a onClick={() => handleNavigation('login')}>
-                                    <i className="fas fa-sign-out-alt"></i>
-                                    <span>Logout</span>
                                 </a>
                             </li>
                         </ul>
