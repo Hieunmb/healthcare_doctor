@@ -1,4 +1,25 @@
+import React, { useEffect, useState } from 'react';
 function Test(){
+    const [items, setItems] = useState([
+        { diagnose: '', amount: '' }
+    ]);
+
+    const addItem = () => {
+        setItems([...items, { diagnose: '', amount: '' }]);
+    }
+
+    const removeItem = (index) => {
+        const newItems = [...items];
+        newItems.splice(index, 1);
+        setItems(newItems);
+    }
+
+    const handleChange = (e, index) => {
+        const { name, value } = e.target;
+        const newItems = [...items];
+        newItems[index][name] = value;
+        setItems(newItems);
+    }
     return(
 <div class="col-md-7 col-lg-8 col-xl-9">
 <div class="card">
@@ -22,51 +43,58 @@ function Test(){
 </div>
 </div>
 
-<div class="add-more-item text-end">
-<a href="javascript:void(0);" class="add-items"><i class="fas fa-plus-circle"></i> Add Item</a>
-</div>
+<div className="add-more-item text-end">
+                        <a className="add-items" onClick={addItem}><i className="fas fa-plus-circle"></i> Add Item</a>
+                    </div>
 
-
-<div class="card card-table">
-<div class="card-body">
-<div class="table-responsive">
-<table class="table table-hover table-center add-table-items">
-<thead>
-<tr>
-<th>Diagnose</th>
-<th>Amount</th>
-<th class="custom-class"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="test">
-<td>
-<input type="text" class="form-control"/>
-</td>
-<td>
-<input type="text" class="form-control"/>
-</td>
-<td>
-<a href="javascript:void(0)" class="btn bg-danger-light trash remove-btn"><i class="far fa-trash-alt"></i></a>
-</td>
-</tr>
-<tr class="test">
-<td>
-<input type="text" class="form-control"/>
-</td>
-<td>
-<input type="text" class="form-control"/>
-</td>
-<td>
-<a href="javascript:void(0)" class="btn bg-danger-light trash remove-btn"><i class="far fa-trash-alt"></i></a>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-
+                    <div className="card card-table">
+                        <div className="card-body">
+                            <div className="table-responsive">
+                                <table className="table table-hover table-center add-table-items">
+                                    <thead>
+                                        <tr>
+                                            <th>Diagnose</th>
+                                            <th>Amount</th>
+                                            <th className="custom-class"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {items.map((item, index) => (
+                                            <tr key={index}>
+                                                <td>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="diagnose"
+                                                        value={item.diagnose}
+                                                        onChange={(e) => handleChange(e, index)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="amount"
+                                                        value={item.amount}
+                                                        onChange={(e) => handleChange(e, index)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <button
+                                                        type="button"
+                                                        className="btn bg-danger-light trash remove-btn"
+                                                        onClick={() => removeItem(index)}
+                                                    >
+                                                        <i className="far fa-trash-alt"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
 
 <div class="row">
 <div class="col-md-12 text-end">
