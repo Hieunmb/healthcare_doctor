@@ -14,7 +14,29 @@ function App() {
   
   // Check if the current path is /login
   const isLoginPath = location.pathname === '/login';
+  const ProtectedRoute = ({ element }) => {
+    const token = localStorage.getItem("accessToken");
+    const { isExpired, isInvalid } = useJwt(token);
 
+    if (!token || isExpired || isInvalid) {
+      window.alert('You have to login first')
+        localStorage.removeItem("accessToken");
+        return <Navigate to="/login" />;
+    }
+
+    return element;
+};
+
+const ProtectedLoginRoute = ({ element }) => {
+    const token = localStorage.getItem("accessToken");
+    const { isExpired, isInvalid } = useJwt(token);
+
+    if (token && !isExpired && !isInvalid) {
+        return <Navigate to="/" />;
+    }
+
+    return element;
+};
   return (
     <div className="App">
       <div className="main-wrapper">
@@ -31,10 +53,10 @@ function App() {
               {!isLoginPath && <Widget />}
               
               <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/appointment" element={<Appoinment />} />
-                <Route path="/test/:id" element={<Test />} />
-                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<ProtectedRoute element={<Dashboard />} />} />
+                <Route path="/appointment" element={<ProtectedRoute element={ <Appoinment />} />} />
+                <Route path="/test/:id" element={<ProtectedRoute element={<Test />}/>} />
+                <Route path="/login" element={<ProtectedLoginRoute element={<Login />} />} />
               </Routes>
               
             </div>
