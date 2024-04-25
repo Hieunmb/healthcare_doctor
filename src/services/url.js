@@ -1,7 +1,7 @@
 const url ={
     BASE_URL:"http://localhost:8080/api/v3",
     PATIENT:{
-        REGISTER:"/patients",
+        REGISTER:"/auth/patients",
     },
     DEPARTMENT:{
         LIST: "/departments",
@@ -20,8 +20,14 @@ const url ={
         CREATE:"/results"
     },
     DOCTOR:{
-        LOGIN:"/doctors/login",
-        PROFILE:"doctors/profile"
+        LOGIN:"/auth/doctors/login",
+        PROFILE:"/auth/doctors/profile"
+    },
+    DEVICE:{
+        LIST:"/devices"
+    },
+    TEST:{
+        CREATE:"/tests"
     }
 }
 export default url;

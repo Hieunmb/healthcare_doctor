@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
-function Test(){
+import React, { useState } from 'react';
+import api from '../../services/api';
+import url from '../../services/url';
+
+function Test() {
     const [items, setItems] = useState([
-        { diagnose: '', amount: '' }
+        { diagnose: '', expense: '', doctorId: '', deviceId: '', resultId: '' }
     ]);
 
     const addItem = () => {
-        setItems([...items, { diagnose: '', amount: '' }]);
+        setItems([...items, { diagnose: '', expense: '', doctorId: '', deviceId: '', resultId: '' }]);
     }
 
     const removeItem = (index) => {
@@ -19,6 +22,19 @@ function Test(){
         const newItems = [...items];
         newItems[index][name] = value;
         setItems(newItems);
+    }
+
+    const handleSubmit = async () => {
+        try{
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            await api.post(url.TEST.CREATE, item);
+        }
+        alert('Tests created successfully!');
+        } catch (error) {
+            console.error("Error creating test:", error);
+            alert('Failed to create test. Please try again.');
+        }
     }
     return(
 <div class="col-md-7 col-lg-8 col-xl-9">
@@ -54,7 +70,10 @@ function Test(){
                                     <thead>
                                         <tr>
                                             <th>Diagnose</th>
-                                            <th>Amount</th>
+                                            <th>Expense</th>
+                                            <th>Doctor ID</th>
+                                            <th>Device ID</th>
+                                            <th>Result ID</th>
                                             <th className="custom-class"></th>
                                         </tr>
                                     </thead>
@@ -72,10 +91,37 @@ function Test(){
                                                 </td>
                                                 <td>
                                                     <input
-                                                        type="text"
+                                                        type="number"
                                                         className="form-control"
-                                                        name="amount"
-                                                        value={item.amount}
+                                                        name="expense"
+                                                        value={item.expense}
+                                                        onChange={(e) => handleChange(e, index)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        name="doctorId"
+                                                        value={item.doctorId}
+                                                        onChange={(e) => handleChange(e, index)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        name="deviceId"
+                                                        value={item.deviceId}
+                                                        onChange={(e) => handleChange(e, index)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        name="resultId"
+                                                        value={item.resultId}
                                                         onChange={(e) => handleChange(e, index)}
                                                     />
                                                 </td>
@@ -96,29 +142,15 @@ function Test(){
                         </div>
                     </div>
 
-<div class="row">
-<div class="col-md-12 text-end">
-<div class="signature-wrap">
-<div class="signature">
-Click here to sign
-</div>
-<div class="sign-name">
-<p class="mb-0">( Dr. Darren Elder )</p>
-<span class="text-muted">Signature</span>
-</div>
-</div>
-</div>
-</div>
+                    <div className="row">
+                        <div className="col-md-12 text-end">
+                            <div className="submit-section">
+                                <button type="button" className="btn btn-primary submit-btn" onClick={handleSubmit}>Save</button>
+                                <button type="reset" className="btn btn-secondary submit-btn">Clear</button>
+                            </div>
+                        </div>
+                    </div>
 
-
-<div class="row">
-<div class="col-md-12">
-<div class="submit-section">
-<button type="submit" class="btn btn-primary submit-btn">Save</button>
-<button type="reset" class="btn btn-secondary submit-btn">Clear</button>
-</div>
-</div>
-</div>
 
 </div>
 </div>
