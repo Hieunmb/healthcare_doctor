@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import url from "../../services/url";
+import { useNavigate } from "react-router-dom";
 function Dashboard(){
+    const navigate = useNavigate();
     const [bookings, setBookings] = useState([]);
     const [shifts, setShifts] = useState({});
     const [patient, setPatient] = useState([]);
@@ -71,6 +73,7 @@ fetchDoctorProfile();
             );
             setBookings(updatedBookings);
             alert("Doctor has accepted the patient.");
+            navigate('/appointment');
             window.location.reload();
         } catch (error) {
             console.error("Error updating booking:", error);

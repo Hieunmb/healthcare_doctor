@@ -1,11 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import url from '../../services/url';
+import { useParams } from 'react-router-dom';
 
 function Test() {
+    const { id } = useParams();
     const [items, setItems] = useState([
         { diagnose: '', expense: '', doctorId: '', deviceId: '', resultId: '' }
     ]);
+    const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
+    const [doctor, setDoctor] = useState({ id: '' });
+    const [devices, setDevices] = useState([]);
+
+    useEffect(() => {
+        const fetchDoctorProfile = async () => {
+            try {
+                const response = await api.get(url.DOCTOR.PROFILE, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                setDoctor(response.data);
+            } catch (error) {
+                console.error("Error fetching doctor profile:", error);
+            }
+        };
+
+        const fetchDevices = async () => {
+            try {
+                const response = await api.get(url.DEVICE.LIST);
+                setDevices(response.data);
+            } catch (error) {
+                console.error("Error fetching devices:", error);
+            }
+        };
+
+        fetchDoctorProfile();
+        fetchDevices();
+    }, []);
 
     const addItem = () => {
         setItems([...items, { diagnose: '', expense: '', doctorId: '', deviceId: '', resultId: '' }]);
@@ -24,18 +56,31 @@ function Test() {
         setItems(newItems);
     }
 
+    const handleDeviceChange = (e, index) => {
+        const { value } = e.target;
+        const newItems = [...items];
+        newItems[index]['deviceId'] = value;
+        setItems(newItems);
+    }
+
     const handleSubmit = async () => {
-        try{
-        for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            await api.post(url.TEST.CREATE, item);
-        }
-        alert('Tests created successfully!');
+        try {
+            const updatedItems = items.map(item => ({
+                ...item,
+                resultId: id,
+                doctorId: doctor.id
+            }));
+            for (let i = 0; i < updatedItems.length; i++) {
+                const item = updatedItems[i];
+                await api.post(url.TEST.CREATE, item);
+            }
+            alert('Tests created successfully!');
         } catch (error) {
             console.error("Error creating test:", error);
             alert('Failed to create test. Please try again.');
         }
     }
+
     return(
 <div class="col-md-7 col-lg-8 col-xl-9">
 <div class="card">
@@ -71,9 +116,7 @@ function Test() {
                                         <tr>
                                             <th>Diagnose</th>
                                             <th>Expense</th>
-                                            <th>Doctor ID</th>
-                                            <th>Device ID</th>
-                                            <th>Result ID</th>
+                                            <th>Device</th>
                                             <th className="custom-class"></th>
                                         </tr>
                                     </thead>
@@ -99,31 +142,15 @@ function Test() {
                                                     />
                                                 </td>
                                                 <td>
-                                                    <input
-                                                        type="number"
+                                                    <select
                                                         className="form-control"
-                                                        name="doctorId"
-                                                        value={item.doctorId}
-                                                        onChange={(e) => handleChange(e, index)}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        name="deviceId"
                                                         value={item.deviceId}
-                                                        onChange={(e) => handleChange(e, index)}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        name="resultId"
-                                                        value={item.resultId}
-                                                        onChange={(e) => handleChange(e, index)}
-                                                    />
+                                                        onChange={(e) => handleDeviceChange(e, index)}
+                                                    >
+                                                        {devices.map(device => (
+                                                            <option key={device.id} value={device.id}>{device.name}</option>
+                                                        ))}
+                                                    </select>
                                                 </td>
                                                 <td>
                                                     <button
@@ -146,7 +173,6 @@ function Test() {
                         <div className="col-md-12 text-end">
                             <div className="submit-section">
                                 <button type="button" className="btn btn-primary submit-btn" onClick={handleSubmit}>Save</button>
-                                <button type="reset" className="btn btn-secondary submit-btn">Clear</button>
                             </div>
                         </div>
                     </div>
