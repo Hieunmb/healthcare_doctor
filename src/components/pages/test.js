@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import url from '../../services/url';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function Test() {
     const { id } = useParams();
+    const navigate= useNavigate();
     const [items, setItems] = useState([
         { diagnose: '', expense: '', doctorId: '', deviceId: '', resultId: '' }
     ]);
@@ -75,6 +76,8 @@ function Test() {
                 await api.post(url.TEST.CREATE, item);
             }
             alert('Tests created successfully!');
+            navigate('/result/' + id);
+
         } catch (error) {
             console.error("Error creating test:", error);
             alert('Failed to create test. Please try again.');
