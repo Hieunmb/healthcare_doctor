@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 
 function Appoinment() {
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
-    const [doctors,setDoctors]=useState({
-        id:0,
-        name:''
+    const [doctors, setDoctors] = useState({
+        id: 0,
+        name: ''
     });
     const [results, setResults] = useState([{}]);
     const [bookings, setBookings] = useState([]);
@@ -16,21 +16,20 @@ function Appoinment() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch all data simultaneously
                 const [resultsResponse, bookingsResponse, patientsResponse] = await Promise.all([
                     api.get(url.RESULT.LIST),
                     api.get(url.BOOKING.LIST),
                     api.get(url.PATIENT.REGISTER)
                 ]);
-    
+
                 const doctorResponse = await api.get(url.DOCTOR.PROFILE, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                     }
                 });
-    
+
                 const filteredResults = resultsResponse.data.filter(result => result.doctorId === doctorResponse.data.id);
-                
+
                 setResults(filteredResults);
                 setBookings(bookingsResponse.data);
                 setPatients(patientsResponse.data);
@@ -39,30 +38,34 @@ function Appoinment() {
                 console.error("Error fetching data:", error);
             }
         };
-        
+
         fetchData();
     }, []);
-    
+
     const navigate = useNavigate();
+
     const handleCreateTest = (bookingId) => {
-        navigate(`/test/${bookingId}`);  // <-- Navigate to /test/:bookingId using navigate
+        navigate(`/test/${bookingId}`);
     };
+
+    const handleViewResult = (resultId) => {
+        navigate(`/result/${resultId}`);
+    };
+
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             <div className="appointments">
                 {results.map((result, index) => {
-                    // Find the matching booking for the result
                     const booking = bookings.find(booking => booking.id === result.bookingId);
-                    
+
                     if (!booking) {
-                        return null; // Skip this result if there's no matching booking
+                        return null;
                     }
 
-                    // Find the matching patient for the booking
                     const patient = patients.find(patient => patient.id === booking.patientId);
 
                     if (!patient) {
-                        return null; // Skip this result if there's no matching patient
+                        return null;
                     }
 
                     return (
@@ -82,11 +85,11 @@ function Appoinment() {
                                 </div>
                             </div>
                             <div className="appointment-action">
-                                <a href="javascript:void(0);" className="btn btn-sm bg-success-light">
-                                <i class="fa-regular fa-pen-to-square"></i> Result
-                                </a>
                                 <a href="" onClick={() => handleCreateTest(result.id)} className="btn btn-sm bg-info-light">
-                                <i class="fa-solid fa-plus"></i> Create test
+                                    <i className="fa-solid fa-plus"></i> Create test
+                                </a>
+                                <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
+                                    <i className="fa-solid fa-eye"></i> View Result
                                 </a>
                             </div>
                         </div>

@@ -5,29 +5,61 @@ import url from "../../services/url";
 
 function Result() {
     const { id } = useParams();
+    const [result, setResult] = useState(null);
     const [tests, setTests] = useState([]);
 
     useEffect(() => {
-        const fetchTests = async () => {
+        const fetchResultAndTests = async () => {
             try {
-                const response = await api.get(url.TEST.LIST);
-                const filteredTests = response.data.filter(tests => tests.resultId == id);
+                // Fetch the result request test
+                const resultResponse = await api.get(url.RESULT.LIST + `/`+id);
+                setResult(resultResponse.data);
+
+                // Fetch the associated tests
+                const testsResponse = await api.get(url.TEST.LIST);
+                const filteredTests = testsResponse.data.filter(test => test.resultId == id);
                 setTests(filteredTests);
             } catch (error) {
-                console.error("Error fetching test list:", error);
+                console.error("Error fetching result and test list:", error);
             }
         };
 
-        fetchTests();
+        fetchResultAndTests();
     }, [id]);
+    console.log(result)
 
     return (
-        <div class="col-md-7 col-lg-8 col-xl-9">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Test Results</h4>
+        <div className="col-md-7 col-lg-8 col-xl-9">
+            {result && (
+                <div className="card mb-4">
+                    <div className="card-header">
+                        <h4 className="card-title mb-0">Result Request Test</h4>
+                    </div>
+                    <div className="card-body">
+                        <div className="row">
+                            <div className="col-sm-6">
+                                <div className="biller-info">
+                                    <h4 className="d-block">{result.doctorName}</h4>
+                                    <span className="d-block text-sm text-muted">{result.specialization}</span>
+                                    <span className="d-block text-sm text-muted">{result.location}</span>
+                                </div>
+                            </div>
+                            <div className="col-sm-6 text-sm-end">
+                                <div className="billing-info">
+                                    <h4 className="d-block">{result.date}</h4>
+                                    <span className="d-block text-muted">Result ID: {result.id}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
+            )}
+
+            <div className="card">
+                <div className="card-header">
+                    <h4 className="card-title mb-0">Test Results</h4>
+                </div>
+                <div className="card-body">
                     <div className="table-responsive">
                         <table className="table table-hover table-center add-table-items">
                             <thead>
