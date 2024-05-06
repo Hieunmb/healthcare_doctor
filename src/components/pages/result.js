@@ -7,17 +7,18 @@ function Result() {
     const { id } = useParams();
     const [result, setResult] = useState(null);
     const [tests, setTests] = useState([]);
+    const [newDiagnose, setNewDiagnose] = useState("");
 
     useEffect(() => {
         const fetchResultAndTests = async () => {
             try {
                 // Fetch the result request test
-                const resultResponse = await api.get(url.RESULT.LIST + `/`+id);
+                const resultResponse = await api.get(url.RESULT.DETAIL + `/${id}`);
                 setResult(resultResponse.data);
 
                 // Fetch the associated tests
                 const testsResponse = await api.get(url.TEST.LIST);
-                const filteredTests = testsResponse.data.filter(test => test.resultId == id);
+                const filteredTests = testsResponse.data.filter(test => test.resultId === id);
                 setTests(filteredTests);
             } catch (error) {
                 console.error("Error fetching result and test list:", error);
@@ -26,7 +27,16 @@ function Result() {
 
         fetchResultAndTests();
     }, [id]);
-    console.log(result)
+
+    const handleDiagnoseUpdate = async () => {
+        try {
+            const updateResponse = await api.post(url.RESULT.UPDATE, { id: result.id, diagnoseEnd: newDiagnose });
+            // Assuming updateResponse contains updated result data
+            setResult(updateResponse.data);
+        } catch (error) {
+            console.error("Error updating diagnose:", error);
+        }
+    };
 
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
@@ -37,17 +47,28 @@ function Result() {
                     </div>
                     <div className="card-body">
                         <div className="row">
-                            <div className="col-sm-6">
+                            <div className="col-sm-12">
                                 <div className="biller-info">
-                                    <h4 className="d-block">{result.doctorName}</h4>
-                                    <span className="d-block text-sm text-muted">{result.specialization}</span>
-                                    <span className="d-block text-sm text-muted">{result.location}</span>
+                                    <span>Final Diagnose</span>
+                                    <input 
+                                        value={newDiagnose} 
+                                        onChange={(e) => setNewDiagnose(e.target.value)} 
+                                        type="text" 
+                                        className="form-control"
+                                    />
                                 </div>
                             </div>
-                            <div className="col-sm-6 text-sm-end">
-                                <div className="billing-info">
-                                    <h4 className="d-block">{result.date}</h4>
-                                    <span className="d-block text-muted">Result ID: {result.id}</span>
+                            <div className="row">
+                                <div className="col-md-12 text-end">
+                                    <div className="submit-section">
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-primary submit-btn" 
+                                            onClick={handleDiagnoseUpdate}
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -17,7 +17,8 @@ const url ={
     },
     RESULT:{
         LIST:"/results",
-        CREATE:"/results"
+        CREATE:"/results",
+        DETAIL:"/results/findById"
     },
     DOCTOR:{
         LOGIN:"/doctors/login",
@@ -28,7 +29,7 @@ const url ={
     },
     TEST:{
         CREATE:"/tests",
-        LIST:"/tests"
+        LIST:"/tests",
     }
 }
 export default url;
