@@ -75,7 +75,7 @@ function Appoinment() {
                                     <img src="assets/img/patients/ava.jpg" alt="User Image" />
                                 </a>
                                 <div className="profile-det-info">
-                                    <h3><a href="patient-profile.html">{patient.name}</a></h3>
+                                    <h3><a href="patient-profile.html">{patient.name} - {result.requestTest}</a></h3>
                                     <div className="patient-details">
                                         <h5><i className="far fa-clock"></i> {booking.date}</h5>
                                         <h5><i className="fas fa-map-marker-alt"></i> {patient.address}</h5>

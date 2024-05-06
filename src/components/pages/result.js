@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import url from "../../services/url";
 
 function Result() {
+    const navigate = useNavigate();
     const { id } = useParams();
     const [result, setResult] = useState(null);
     const [tests, setTests] = useState([]);
@@ -18,7 +19,7 @@ function Result() {
 
                 // Fetch the associated tests
                 const testsResponse = await api.get(url.TEST.LIST);
-                const filteredTests = testsResponse.data.filter(test => test.resultId === id);
+                const filteredTests = testsResponse.data.filter(test => test.resultId == id);
                 setTests(filteredTests);
             } catch (error) {
                 console.error("Error fetching result and test list:", error);
@@ -30,14 +31,15 @@ function Result() {
 
     const handleDiagnoseUpdate = async () => {
         try {
-            const updateResponse = await api.post(url.RESULT.UPDATE, { id: result.id, diagnoseEnd: newDiagnose });
+            const updateResponse = await api.put(url.RESULT.LIST+'/'+id, { id: result.id,expense:result.expense,requestTest:result.requestTest, diagnoseEnd: newDiagnose });
             // Assuming updateResponse contains updated result data
             setResult(updateResponse.data);
+            navigate("/appointment");
         } catch (error) {
             console.error("Error updating diagnose:", error);
         }
     };
-
+    console.log(tests)
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             {result && (
