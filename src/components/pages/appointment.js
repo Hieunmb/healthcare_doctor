@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import url from "../../services/url";
-import { useNavigate } from "react-router-dom";
 
-function Appoinment() {
+function Appointment() {
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [doctors, setDoctors] = useState({
         id: 0,
@@ -57,17 +57,17 @@ function Appoinment() {
             <div className="appointments">
                 {results.map((result, index) => {
                     const booking = bookings.find(booking => booking.id === result.bookingId);
-
+    
                     if (!booking) {
                         return null;
                     }
-
+    
                     const patient = patients.find(patient => patient.id === booking.patientId);
-
+    
                     if (!patient) {
                         return null;
                     }
-
+    
                     return (
                         <div className="appointment-list" key={index}>
                             <div className="profile-info-widget">
@@ -85,12 +85,21 @@ function Appoinment() {
                                 </div>
                             </div>
                             <div className="appointment-action">
-                                <a href="" onClick={() => handleCreateTest(result.id)} className="btn btn-sm bg-info-light">
-                                    <i className="fa-solid fa-plus"></i> Create test
-                                </a>
-                                <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
-                                    <i className="fa-solid fa-eye"></i> View Result
-                                </a>
+                                {result.requestTest === null ? (
+                                    <Link to={`/medical-examination/${result.id}`} className="btn btn-sm bg-primary-light">
+                                        <i className="fa-solid fa-notes-medical"></i> Medical Examination Reason
+                                    </Link>
+                                    
+                                ) : (
+                                    <>
+                                        <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
+                                            <i className="fa-solid fa-eye"></i> View Result
+                                        </a>
+                                        <a href="" onClick={() => handleCreateTest(result.id)} className="btn btn-sm bg-info-light">
+                                            <i className="fa-solid fa-plus"></i> Create test
+                                        </a>
+                                    </>
+                                )}
                             </div>
                         </div>
                     );
@@ -100,4 +109,4 @@ function Appoinment() {
     );
 }
 
-export default Appoinment;
+export default Appointment;
