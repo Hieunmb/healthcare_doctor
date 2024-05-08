@@ -12,6 +12,8 @@ function Test() {
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [doctor, setDoctor] = useState({ id: '' });
     const [devices, setDevices] = useState([]);
+    const [deviceExpenses, setDeviceExpenses] = useState({
+    }); // State mới để lưu giá trị device.expense
 
     useEffect(() => {
         const fetchDoctorProfile = async () => {
@@ -57,19 +59,32 @@ function Test() {
         setItems(newItems);
     }
 
+    const [tempItemExpenses, setTempItemExpenses] = useState([]); // State tạm thời để lưu giá trị mới của chi phí
+
     const handleDeviceChange = (e, index) => {
         const { value } = e.target;
         const newItems = [...items];
         newItems[index]['deviceId'] = value;
-        setItems(newItems);
+        
+        // Lấy thông tin của thiết bị được chọn
+        const selectedDevice = devices.find(device => device.id == value);
+        if (selectedDevice && selectedDevice.expense) {
+            // Lưu giá trị expense của thiết bị vào state tạm thời
+            const updatedTempItemExpenses = [...tempItemExpenses];
+            updatedTempItemExpenses[index] = selectedDevice.expense;
+            setTempItemExpenses(updatedTempItemExpenses);
+        } else {
+            console.error("Selected device or device expense is undefined.");
+        }
     }
 
     const handleSubmit = async () => {
         try {
-            const updatedItems = items.map(item => ({
+            const updatedItems = items.map((item, index) => ({
                 ...item,
                 resultId: id,
-                doctorId: doctor.id
+                doctorId: doctor.id,
+                expense: (parseFloat(item.expense) + parseFloat(tempItemExpenses[index] || 0)).toFixed(2) // Cập nhật giá trị expense dựa trên state tạm thời
             }));
             for (let i = 0; i < updatedItems.length; i++) {
                 const item = updatedItems[i];
@@ -83,7 +98,7 @@ function Test() {
             alert('Failed to create test. Please try again.');
         }
     }
-
+    
     return(
 <div class="col-md-7 col-lg-8 col-xl-9">
 <div class="card">
@@ -151,7 +166,7 @@ function Test() {
                                                         onChange={(e) => handleDeviceChange(e, index)}
                                                     >
                                                         {devices.map(device => (
-                                                            <option key={device.id} value={device.id}>{device.name}</option>
+                                                            <option key={device.id} value={device.id}>{device.name} - ${device.expense}</option>
                                                         ))}
                                                     </select>
                                                 </td>
