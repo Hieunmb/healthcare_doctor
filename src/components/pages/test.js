@@ -7,7 +7,7 @@ function Test() {
     const { id } = useParams();
     const navigate= useNavigate();
     const [items, setItems] = useState([
-        { diagnose: '', expense: '', doctorId: '', deviceId: '', resultId: '' }
+        { diagnose: '', expense: '', doctorId: '', deviceId: "1", resultId: '' }
     ]);
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [doctor, setDoctor] = useState({ id: '' });
@@ -84,7 +84,7 @@ function Test() {
                 ...item,
                 resultId: id,
                 doctorId: doctor.id,
-                expense: (parseFloat(item.expense) + parseFloat(tempItemExpenses[index] || 0)).toFixed(2) // Cập nhật giá trị expense dựa trên state tạm thời
+                expense: (parseFloat(item.expense) + parseFloat(tempItemExpenses[index] || devices[0].expense)).toFixed(2) // Cập nhật giá trị expense dựa trên state tạm thời
             }));
             for (let i = 0; i < updatedItems.length; i++) {
                 const item = updatedItems[i];
@@ -98,7 +98,7 @@ function Test() {
             alert('Failed to create test. Please try again.');
         }
     }
-    
+    console.log(items)
     return(
 <div class="col-md-7 col-lg-8 col-xl-9">
 <div class="card">
@@ -163,6 +163,7 @@ function Test() {
                                                     <select
                                                         className="form-control"
                                                         value={item.deviceId}
+                                                        name='deviceId'
                                                         onChange={(e) => handleDeviceChange(e, index)}
                                                     >
                                                         {devices.map(device => (
