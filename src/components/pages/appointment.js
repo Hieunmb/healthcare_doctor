@@ -85,12 +85,6 @@ function Appointment() {
                                 </div>
                             </div>
                             <div className="appointment-action">
-                                {result.requestTest === null ? (
-                                    <Link to={`/medical-examination/${result.id}`} className="btn btn-sm bg-primary-light">
-                                        <i className="fa-solid fa-notes-medical"></i> Medical Examination Reason
-                                    </Link>
-                                    
-                                ) : (
                                     <>
                                         <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
                                             <i className="fa-solid fa-eye"></i> View Result
@@ -99,7 +93,6 @@ function Appointment() {
                                             <i className="fa-solid fa-plus"></i> Create test
                                         </a>
                                     </>
-                                )}
                             </div>
                         </div>
                     );

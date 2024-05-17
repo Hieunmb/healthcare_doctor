@@ -6,7 +6,6 @@ import Footer from './components/layouts/footer';
 import Dashboard from './components/pages/dashboard';
 import Appoinment from './components/pages/appointment';
 import Widget from './components/layouts/widget';
-import Test from './components/pages/test';
 import Login from './components/auth/login';
 import { useJwt } from 'react-jwt';
 import Result from './components/pages/result';
@@ -58,10 +57,9 @@ const ProtectedLoginRoute = ({ element }) => {
               <Routes>
                 <Route path="/" element={<ProtectedRoute element={<Dashboard />} />} />
                 <Route path="/appointment" element={<ProtectedRoute element={ <Appoinment />} />} />
-                <Route path="/test/:id" element={<ProtectedRoute element={<Test />}/>} />
                 <Route path="/login" element={<ProtectedLoginRoute element={<Login />} />} />
                 <Route path='/result/:id' element={<ProtectedRoute element={<Result/>}/>}/>
-                <Route path='/medical-examination/:id' element={<ProtectedRoute element={<MedicalExamination/>}/>}/>
+                <Route path='/test/:id' element={<ProtectedRoute element={<MedicalExamination/>}/>}/>
               </Routes>
               
             </div>

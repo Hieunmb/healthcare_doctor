@@ -20,7 +20,17 @@ function Result() {
                 // Fetch the associated tests
                 const testsResponse = await api.get(url.TEST.LIST);
                 const filteredTests = testsResponse.data.filter(test => test.resultId == id);
-                setTests(filteredTests);
+
+                const devicesResponse = await api.get(url.DEVICE.LIST);
+                const devices = devicesResponse.data;
+
+                // Filter devices based on test.deviceId
+                const updatedTests = filteredTests.map(test => {
+                    const device = devices.find(device => device.id === test.deviceId);
+                    return { ...test, device };
+                });
+
+                setTests(updatedTests);
             } catch (error) {
                 console.error("Error fetching result and test list:", error);
             }
@@ -97,7 +107,7 @@ function Result() {
                                     <tr key={index}>
                                         <td>{test.diagnose}</td>
                                         <td>{test.expense}</td>
-                                        <td>{test.deviceId}</td>
+                                        <td>{test.device.name} - ${test.device.expense}</td>
                                     </tr>
                                 ))}
                             </tbody>
