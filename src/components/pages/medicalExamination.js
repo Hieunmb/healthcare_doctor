@@ -8,13 +8,15 @@ function MedicalExamination() {
     const navigate = useNavigate();
     const [requestTest, setRequestTest] = useState("");
     const [items, setItems] = useState([
-        { diagnose: '', expense: '', doctorId: '', deviceId: "1", resultId: '' }
+        { diagnose: '', expense: '', doctorId: '', deviceId: "1", resultId: '', thumbnail: null }
     ]);
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [doctor, setDoctor] = useState({ id: '' });
     const [devices, setDevices] = useState([]);
     const [deviceExpenses, setDeviceExpenses] = useState({});
     const [tempItemExpenses, setTempItemExpenses] = useState([]);
+    const [patient, setPatient] = useState(null); // State to store the patient's data
+    const [result, setResult] = useState({}); // State to store the result data
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,16 +30,28 @@ function MedicalExamination() {
 
                 const devicesResponse = await api.get(url.DEVICE.LIST);
                 setDevices(devicesResponse.data);
+
+                // Fetch result data
+                const resultResponse = await api.get(`${url.RESULT.DETAIL}/${id}`);
+                setResult(resultResponse.data);
+
+                // Fetch patient list and find the matching patient
+                const patientsResponse = await api.get(url.PATIENT.REGISTER);
+                const foundPatient = patientsResponse.data.find(
+                    patient => patient.id == resultResponse.data.booking.patientId
+                );
+                setPatient(foundPatient);
+
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
 
         fetchData();
-    }, []);
+    }, [id, accessToken]);
 
     const addItem = () => {
-        setItems([...items, { diagnose: '', expense: '', doctorId: '', deviceId: '1', resultId: '' }]);
+        setItems([...items, { diagnose: '', expense: '', doctorId: '', deviceId: '1', resultId: '', thumbnail: null }]);
     }
 
     const removeItem = (index) => {
@@ -68,6 +82,15 @@ function MedicalExamination() {
         }
     }
 
+    const handleImageChange = (e, index) => {
+        const file = e.target.files[0];
+        if (file) {
+            const newItems = [...items];
+            newItems[index]['thumbnail'] = file;
+            setItems(newItems);
+        }
+    };
+
     const handleSaveAll = async (e) => {
         e.preventDefault(); // Prevent default form submission behavior
 
@@ -83,20 +106,54 @@ function MedicalExamination() {
 
             for (let i = 0; i < updatedItems.length; i++) {
                 const item = updatedItems[i];
-                await api.post(url.TEST.CREATE, item);
+                const formData = new FormData();
+
+                formData.append('diagnose', item.diagnose);
+                formData.append('expense', item.expense);
+                formData.append('doctorId', item.doctorId);
+                formData.append('deviceId', item.deviceId);
+                formData.append('resultId', item.resultId);
+                if (item.thumbnail) {
+                    formData.append('thumbnail', item.thumbnail);
+                }
+
+                await api.post(url.TEST.CREATE, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
             }
 
             alert('Data saved successfully!');
-            navigate('/appointment');
+            navigate(`/result/${id}`);
         } catch (error) {
             console.error("Error saving data:", error);
             alert('Failed to save data. Please try again.');
         }
     };
+    console.log(patient)
 
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             <h2>Medical Examination</h2>
+            {patient && (
+            <div className="appointment-list">
+<div className="profile-info-widget">
+<a href="patient-profile.html" className="booking-doc-img">
+<img src="../assets/img/patients/ava.jpg" alt="User Image"/>
+</a>
+<div className="profile-det-info">
+<h3><a href="patient-profile.html">{patient.name}</a></h3>
+<div className="patient-details">
+<h5><i className="fas fa-transgender"></i> {patient.gender}</h5>
+<h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
+<h5><i className="fas fa-envelope"></i>{patient.email}</h5>
+<h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
+</div>
+</div>
+</div>
+</div>
+            )}
             <form onSubmit={handleSaveAll}>
                 <div>
                     <label style={{ float: "left" }} htmlFor="requestTest">Medical Examination Reason:</label>
@@ -117,6 +174,7 @@ function MedicalExamination() {
                                         <th>Diagnose</th>
                                         <th>Expense</th>
                                         <th>Device</th>
+                                        <th>Thumbnail</th>
                                         <th className="custom-class"></th>
                                     </tr>
                                 </thead>
@@ -152,6 +210,14 @@ function MedicalExamination() {
                                                         <option key={device.id} value={device.id}>{device.name} - ${device.expense}</option>
                                                     ))}
                                                 </select>
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="file"
+                                                    className="form-control"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleImageChange(e, index)}
+                                                />
                                             </td>
                                             <td>
                                                 <button

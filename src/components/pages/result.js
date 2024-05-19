@@ -100,6 +100,7 @@ function Result() {
                                     <th>Diagnose</th>
                                     <th>Expense</th>
                                     <th>Device</th>
+                                    <th>Thumbnail Result</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,6 +109,7 @@ function Result() {
                                         <td>{test.diagnose}</td>
                                         <td>{test.expense}</td>
                                         <td>{test.device.name} - ${test.device.expense}</td>
+                                        <td><img src={test.thumbnail}/></td>
                                     </tr>
                                 ))}
                             </tbody>
