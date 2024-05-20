@@ -131,7 +131,6 @@ function MedicalExamination() {
             alert('Failed to save data. Please try again.');
         }
     };
-    console.log(patient)
 
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">

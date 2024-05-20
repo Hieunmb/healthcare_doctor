@@ -9,13 +9,21 @@ function Result() {
     const [result, setResult] = useState(null);
     const [tests, setTests] = useState([]);
     const [newDiagnose, setNewDiagnose] = useState("");
+    const [patient, setPatient] = useState(null); // State to store the patient's data
 
     useEffect(() => {
         const fetchResultAndTests = async () => {
             try {
                 // Fetch the result request test
-                const resultResponse = await api.get(url.RESULT.DETAIL + `/${id}`);
+                const resultResponse = await api.get(`${url.RESULT.DETAIL}/${id}`);
                 setResult(resultResponse.data);
+
+                // Fetch patient list and find the matching patient
+                const patientsResponse = await api.get(url.PATIENT.REGISTER);
+                const foundPatient = patientsResponse.data.find(
+                    patient => patient.id == resultResponse.data.booking.patientId
+                );
+                setPatient(foundPatient);
 
                 // Fetch the associated tests
                 const testsResponse = await api.get(url.TEST.LIST);
@@ -49,9 +57,26 @@ function Result() {
             console.error("Error updating diagnose:", error);
         }
     };
-    console.log(tests)
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
+            {patient && (
+            <div className="appointment-list">
+<div className="profile-info-widget">
+<a href="patient-profile.html" className="booking-doc-img">
+<img src="../assets/img/patients/ava.jpg" alt="User Image"/>
+</a>
+<div className="profile-det-info">
+<h3><a href="patient-profile.html">{patient.name}</a></h3>
+<div className="patient-details">
+<h5><i className="fas fa-transgender"></i> {patient.gender}</h5>
+<h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
+<h5><i className="fas fa-envelope"></i>{patient.email}</h5>
+<h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
+</div>
+</div>
+</div>
+</div>
+            )}
             {result && (
                 <div className="card mb-4">
                     <div className="card-header">
