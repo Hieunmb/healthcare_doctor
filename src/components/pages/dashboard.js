@@ -73,7 +73,7 @@ fetchDoctorProfile();
             );
             setBookings(updatedBookings);
             alert("Doctor has accepted the patient.");
-            navigate('/appointment');
+            navigate('/test/'+bookingId);
             window.location.reload();
         } catch (error) {
             console.error("Error updating booking:", error);
