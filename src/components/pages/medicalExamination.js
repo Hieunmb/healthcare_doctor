@@ -8,7 +8,7 @@ function MedicalExamination() {
     const navigate = useNavigate();
     const [requestTest, setRequestTest] = useState("");
     const [items, setItems] = useState([
-        { diagnose: '', expense: '', doctorId: '', deviceId: "1", resultId: '', thumbnail: null }
+        { diagnose: '', expense: '0', doctorId: '', deviceId: "1", resultId: '' }
     ]);
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [doctor, setDoctor] = useState({ id: '' });
@@ -51,7 +51,7 @@ function MedicalExamination() {
     }, [id, accessToken]);
 
     const addItem = () => {
-        setItems([...items, { diagnose: '', expense: '', doctorId: '', deviceId: '1', resultId: '', thumbnail: null }]);
+        setItems([...items, { diagnose: '', expense: '0', doctorId: '', deviceId: '1', resultId: '' }]);
     }
 
     const removeItem = (index) => {
@@ -82,14 +82,6 @@ function MedicalExamination() {
         }
     }
 
-    const handleImageChange = (e, index) => {
-        const file = e.target.files[0];
-        if (file) {
-            const newItems = [...items];
-            newItems[index]['thumbnail'] = file;
-            setItems(newItems);
-        }
-    };
 
     const handleSaveAll = async (e) => {
         e.preventDefault(); // Prevent default form submission behavior
@@ -106,22 +98,7 @@ function MedicalExamination() {
 
             for (let i = 0; i < updatedItems.length; i++) {
                 const item = updatedItems[i];
-                const formData = new FormData();
-
-                formData.append('diagnose', item.diagnose);
-                formData.append('expense', item.expense);
-                formData.append('doctorId', item.doctorId);
-                formData.append('deviceId', item.deviceId);
-                formData.append('resultId', item.resultId);
-                if (item.thumbnail) {
-                    formData.append('thumbnail', item.thumbnail);
-                }
-
-                await api.post(url.TEST.CREATE, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+                await api.post(url.TEST.CREATE, item);
             }
 
             alert('Data saved successfully!');
@@ -171,9 +148,7 @@ function MedicalExamination() {
                                 <thead>
                                     <tr>
                                         <th>Diagnose</th>
-                                        <th>Expense</th>
                                         <th>Device</th>
-                                        <th>Thumbnail</th>
                                         <th className="custom-class"></th>
                                     </tr>
                                 </thead>
@@ -190,15 +165,6 @@ function MedicalExamination() {
                                                 />
                                             </td>
                                             <td>
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    name="expense"
-                                                    value={item.expense}
-                                                    onChange={(e) => handleChange(e, index)}
-                                                />
-                                            </td>
-                                            <td>
                                                 <select
                                                     className="form-control"
                                                     value={item.deviceId}
@@ -209,14 +175,6 @@ function MedicalExamination() {
                                                         <option key={device.id} value={device.id}>{device.name} - ${device.expense}</option>
                                                     ))}
                                                 </select>
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="file"
-                                                    className="form-control"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleImageChange(e, index)}
-                                                />
                                             </td>
                                             <td>
                                                 <button
