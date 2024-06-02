@@ -10,6 +10,7 @@ function Result() {
     const [tests, setTests] = useState([]);
     const [newDiagnose, setNewDiagnose] = useState("");
     const [patient, setPatient] = useState(null); // State to store the patient's data
+    const [fileInputs, setFileInputs] = useState({}); // State to store file inputs
 
     useEffect(() => {
         const fetchResultAndTests = async () => {
@@ -34,7 +35,7 @@ function Result() {
 
                 // Filter devices based on test.deviceId
                 const updatedTests = filteredTests.map(test => {
-                    const device = devices.find(device => device.id === test.deviceId);
+                    const device = devices.find(device => device.id == test.deviceId);
                     return { ...test, device };
                 });
 
@@ -49,33 +50,78 @@ function Result() {
 
     const handleDiagnoseUpdate = async () => {
         try {
-            const updateResponse = await api.put(url.RESULT.LIST+'/'+id, { id: result.id,expense:result.expense,requestTest:result.requestTest, diagnoseEnd: newDiagnose });
+            const updateResponse = await api.put(`${url.RESULT.LIST}/${id}`, { id: result.id, expense: result.expense, requestTest: result.requestTest, diagnoseEnd: newDiagnose });
             // Assuming updateResponse contains updated result data
             setResult(updateResponse.data);
-            navigate("/appointment");
+            // Navigate to appointment after saving
         } catch (error) {
             console.error("Error updating diagnose:", error);
         }
     };
+
+    const handleFileChange = (e, testId) => {
+        setFileInputs({
+            ...fileInputs,
+            [testId]: e.target.files[0],
+        });
+    };
+
+    const handleSave = async () => {
+        try {
+            await handleDiagnoseUpdate();
+
+            for (const test of tests) {
+                const file = fileInputs[test.id];
+                const formData = new FormData();
+                formData.append("diagnose", test.diagnose);
+                formData.append("expense", test.expense);
+                formData.append("resultId", test.resultId);
+                formData.append("deviceId", test.deviceId);
+
+                if (file) {
+                    formData.append("thumbnail", file);
+                } else if (test.thumbnail) {
+                    formData.append("thumbnail", test.thumbnail);
+                }
+
+                await api.put(`${url.TEST.UPDATE}/${test.id}`, formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+            }
+
+            // Re-fetch tests after update to reflect changes
+            const testsResponse = await api.get(url.TEST.LIST);
+            const filteredTests = testsResponse.data.filter(test => test.resultId == id);
+            setTests(filteredTests);
+
+            // Navigate to appointment after saving
+            navigate('/appointment');
+        } catch (error) {
+            console.error("Error updating tests:", error);
+        }
+    };
+
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             {patient && (
-            <div className="appointment-list">
-<div className="profile-info-widget">
-<a href="patient-profile.html" className="booking-doc-img">
-<img src="../assets/img/patients/ava.jpg" alt="User Image"/>
-</a>
-<div className="profile-det-info">
-<h3><a href="patient-profile.html">{patient.name}</a></h3>
-<div className="patient-details">
-<h5><i className="fas fa-transgender"></i> {patient.gender}</h5>
-<h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
-<h5><i className="fas fa-envelope"></i>{patient.email}</h5>
-<h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
-</div>
-</div>
-</div>
-</div>
+                <div className="appointment-list">
+                    <div className="profile-info-widget">
+                        <a href="patient-profile.html" className="booking-doc-img">
+                            <img src="../assets/img/patients/ava.jpg" alt="User Image"/>
+                        </a>
+                        <div className="profile-det-info">
+                            <h3><a href="patient-profile.html">{patient.name}</a></h3>
+                            <div className="patient-details">
+                                <h5><i className="fas fa-transgender"></i> {patient.gender}</h5>
+                                <h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
+                                <h5><i className="fas fa-envelope"></i>{patient.email}</h5>
+                                <h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
             {result && (
                 <div className="card mb-4">
@@ -88,6 +134,7 @@ function Result() {
                                 <div className="biller-info">
                                     <span>Final Diagnose</span>
                                     <input 
+                                    required
                                         value={newDiagnose} 
                                         onChange={(e) => setNewDiagnose(e.target.value)} 
                                         type="text" 
@@ -95,19 +142,7 @@ function Result() {
                                     />
                                 </div>
                             </div>
-                            <div className="row">
-                                <div className="col-md-12 text-end">
-                                    <div className="submit-section">
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-primary submit-btn" 
-                                            onClick={handleDiagnoseUpdate}
-                                        >
-                                            Save
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -134,12 +169,36 @@ function Result() {
                                         <td>{test.diagnose}</td>
                                         <td>{test.expense}</td>
                                         <td>{test.device.name} - ${test.device.expense}</td>
-                                        <td><img src={test.thumbnail}/></td>
+                                        <td>
+                                            {test.thumbnail ? (
+                                                <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
+                                            ) : (
+                                                <input 
+                                                required
+                                                    type="file" 
+                                                    onChange={(e) => handleFileChange(e, test.id)} 
+                                                    className="form-control"
+                                                />
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
+                    <div className="row">
+                                <div className="col-md-12 text-end">
+                                    <div className="submit-section">
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-primary submit-btn" 
+                                            onClick={handleSave}
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                 </div>
             </div>
         </div>

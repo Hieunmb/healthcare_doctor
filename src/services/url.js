@@ -30,6 +30,7 @@ const url ={
     TEST:{
         CREATE:"/tests",
         LIST:"/tests",
+        UPDATE:"/tests"
     }
 }
 export default url;
