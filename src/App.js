@@ -16,7 +16,7 @@ function App() {
   const location = useLocation();
   
   // Check if the current path is /login
-  const isLoginPath = location.pathname === '/login';
+  const isLoginPath = location.pathname === '/login' || location.pathname === "/invoice-view";
   const ProtectedRoute = ({ element }) => {
     const token = localStorage.getItem("accessToken");
     const { isExpired, isInvalid } = useJwt(token);
