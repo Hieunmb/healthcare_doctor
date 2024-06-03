@@ -31,6 +31,12 @@ const url ={
         CREATE:"/tests",
         LIST:"/tests",
         UPDATE:"/tests"
+    },
+    RESULTMEDICINE:{
+        CREATE:"/result_medicine"
+    },
+    MEDICINE:{
+        LIST:"/medicine"
     }
 }
 export default url;

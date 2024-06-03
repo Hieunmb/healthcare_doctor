@@ -44,8 +44,8 @@ function Appointment() {
 
     const navigate = useNavigate();
 
-    const handleCreateTest = (bookingId) => {
-        navigate(`/test/${bookingId}`);
+    const handleCreateTest = (resultId) => {
+        navigate(`/test/${resultId}`);
     };
 
     const handleViewResult = (resultId) => {

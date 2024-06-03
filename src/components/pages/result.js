@@ -11,6 +11,8 @@ function Result() {
     const [newDiagnose, setNewDiagnose] = useState("");
     const [patient, setPatient] = useState(null); // State to store the patient's data
     const [fileInputs, setFileInputs] = useState({}); // State to store file inputs
+    const [medicines, setMedicines] = useState([]); // State to store the list of medicines
+    const [resultMedicines, setResultMedicines] = useState([]); // State to store result medicine entries
 
     useEffect(() => {
         const fetchResultAndTests = async () => {
@@ -40,6 +42,10 @@ function Result() {
                 });
 
                 setTests(updatedTests);
+
+                // Fetch medicines
+                const medicinesResponse = await api.get(url.MEDICINE.LIST);
+                setMedicines(medicinesResponse.data);
             } catch (error) {
                 console.error("Error fetching result and test list:", error);
             }
@@ -64,6 +70,24 @@ function Result() {
             ...fileInputs,
             [testId]: e.target.files[0],
         });
+    };
+
+    const handleAddMedicine = () => {
+        setResultMedicines([
+            ...resultMedicines,
+            { medicineId: "", quantity: "", description: "" }
+        ]);
+    };
+
+    const handleMedicineChange = (index, field, value) => {
+        const updatedMedicines = [...resultMedicines];
+        updatedMedicines[index][field] = value;
+        setResultMedicines(updatedMedicines);
+    };
+
+    const removeItem = (index) => {
+        const updatedMedicines = resultMedicines.filter((_, i) => i !== index);
+        setResultMedicines(updatedMedicines);
     };
 
     const handleSave = async () => {
@@ -91,6 +115,16 @@ function Result() {
                 });
             }
 
+            for (const resultMedicine of resultMedicines) {
+                await api.post(url.RESULTMEDICINE.CREATE, {
+                    resultId: id,
+                    medicineId: resultMedicine.medicineId,
+                    quantity: resultMedicine.quantity,
+                    description: resultMedicine.description
+                });
+            }
+            console.log(resultMedicines)
+
             // Re-fetch tests after update to reflect changes
             const testsResponse = await api.get(url.TEST.LIST);
             const filteredTests = testsResponse.data.filter(test => test.resultId == id);
@@ -99,7 +133,7 @@ function Result() {
             // Navigate to appointment after saving
             navigate('/appointment');
         } catch (error) {
-            console.error("Error updating tests:", error);
+            console.error("Error updating tests or result medicines:", error);
         }
     };
 
@@ -134,7 +168,7 @@ function Result() {
                                 <div className="biller-info">
                                     <span>Final Diagnose</span>
                                     <input 
-                                    required
+                                        required
                                         value={newDiagnose} 
                                         onChange={(e) => setNewDiagnose(e.target.value)} 
                                         type="text" 
@@ -142,7 +176,6 @@ function Result() {
                                     />
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
@@ -174,7 +207,7 @@ function Result() {
                                                 <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
                                             ) : (
                                                 <input 
-                                                required
+                                                    required
                                                     type="file" 
                                                     onChange={(e) => handleFileChange(e, test.id)} 
                                                     className="form-control"
@@ -186,19 +219,94 @@ function Result() {
                             </tbody>
                         </table>
                     </div>
-                    <div className="row">
-                                <div className="col-md-12 text-end">
-                                    <div className="submit-section">
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-primary submit-btn" 
-                                            onClick={handleSave}
-                                        >
-                                            Save
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                </div>
+            </div>
+
+            <div className="card">
+                <div className="card-header">
+                    <h4 className="card-title mb-0">Prescribe Medicines</h4>
+                    <button 
+                        type="button" 
+                        className="btn btn-primary btn-sm"
+                        onClick={handleAddMedicine}
+                    >
+                        Add Medicine
+                    </button>
+                </div>
+                <div className="card-body">
+                    <div className="table-responsive">
+                        <table className="table table-hover table-center add-table-items">
+                            <thead>
+                                <tr>
+                                    <th>Medicine</th>
+                                    <th>Quantity</th>
+                                    <th>Description</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {resultMedicines.map((rm, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <select
+                                                required
+                                                className="form-control"
+                                                value={rm.medicineId}
+                                                onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value)}
+                                            >
+                                                {medicines.map(med => (
+                                                    <option key={med.id} value={med.id}>
+                                                        {med.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input 
+                                                required
+                                                type="number"
+                                                className="form-control"
+                                                value={rm.quantity}
+                                                onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input 
+                                                required
+                                                type="text"
+                                                className="form-control"
+                                                value={rm.description}
+                                                onChange={(e) => handleMedicineChange(index, 'description', e.target.value)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className="btn bg-danger-light trash remove-btn"
+                                                onClick={() => removeItem(index)}
+                                            >
+                                                <i className="far fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="row">
+                <div className="col-md-12 text-end">
+                    <div className="submit-section">
+                        <button 
+                            type="button" 
+                            className="btn btn-primary submit-btn" 
+                            onClick={handleSave}
+                        >
+                            Save
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
