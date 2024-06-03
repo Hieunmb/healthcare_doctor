@@ -9,33 +9,30 @@ function Result() {
     const [result, setResult] = useState(null);
     const [tests, setTests] = useState([]);
     const [newDiagnose, setNewDiagnose] = useState("");
-    const [patient, setPatient] = useState(null); // State to store the patient's data
-    const [fileInputs, setFileInputs] = useState({}); // State to store file inputs
-    const [medicines, setMedicines] = useState([]); // State to store the list of medicines
-    const [resultMedicines, setResultMedicines] = useState([]); // State to store result medicine entries
+    const [patient, setPatient] = useState(null);
+    const [fileInputs, setFileInputs] = useState({});
+    const [medicines, setMedicines] = useState([]);
+    const [resultMedicines, setResultMedicines] = useState([]);
+    const [resultMedicinesNew, setResultMedicinesNew] = useState([]);
 
     useEffect(() => {
         const fetchResultAndTests = async () => {
             try {
-                // Fetch the result request test
                 const resultResponse = await api.get(`${url.RESULT.DETAIL}/${id}`);
                 setResult(resultResponse.data);
 
-                // Fetch patient list and find the matching patient
                 const patientsResponse = await api.get(url.PATIENT.REGISTER);
                 const foundPatient = patientsResponse.data.find(
                     patient => patient.id == resultResponse.data.booking.patientId
                 );
                 setPatient(foundPatient);
 
-                // Fetch the associated tests
                 const testsResponse = await api.get(url.TEST.LIST);
                 const filteredTests = testsResponse.data.filter(test => test.resultId == id);
 
                 const devicesResponse = await api.get(url.DEVICE.LIST);
                 const devices = devicesResponse.data;
 
-                // Filter devices based on test.deviceId
                 const updatedTests = filteredTests.map(test => {
                     const device = devices.find(device => device.id == test.deviceId);
                     return { ...test, device };
@@ -43,9 +40,12 @@ function Result() {
 
                 setTests(updatedTests);
 
-                // Fetch medicines
                 const medicinesResponse = await api.get(url.MEDICINE.LIST);
                 setMedicines(medicinesResponse.data);
+
+                const resultMedicinesResponse = await api.get(`${url.RESULTMEDICINE.DETAIL}${id}`);
+                const existingResultMedicines = resultMedicinesResponse.data.map(medicine => ({ ...medicine, isNew: false }));
+                setResultMedicines(existingResultMedicines);
             } catch (error) {
                 console.error("Error fetching result and test list:", error);
             }
@@ -57,9 +57,7 @@ function Result() {
     const handleDiagnoseUpdate = async () => {
         try {
             const updateResponse = await api.put(`${url.RESULT.LIST}/${id}`, { id: result.id, expense: result.expense, requestTest: result.requestTest, diagnoseEnd: newDiagnose });
-            // Assuming updateResponse contains updated result data
             setResult(updateResponse.data);
-            // Navigate to appointment after saving
         } catch (error) {
             console.error("Error updating diagnose:", error);
         }
@@ -73,21 +71,32 @@ function Result() {
     };
 
     const handleAddMedicine = () => {
-        setResultMedicines([
-            ...resultMedicines,
-            { medicineId: "", quantity: "", description: "" }
+        setResultMedicinesNew([
+            ...resultMedicinesNew,
+            { medicineId: "1", quantity: "", description: "", isNew: true }
         ]);
     };
 
-    const handleMedicineChange = (index, field, value) => {
-        const updatedMedicines = [...resultMedicines];
-        updatedMedicines[index][field] = value;
-        setResultMedicines(updatedMedicines);
+    const handleMedicineChange = (index, field, value, isNew) => {
+        if (isNew) {
+            const updatedMedicines = [...resultMedicinesNew];
+            updatedMedicines[index][field] = value;
+            setResultMedicinesNew(updatedMedicines);
+        } else {
+            const updatedMedicines = [...resultMedicines];
+            updatedMedicines[index][field] = value;
+            setResultMedicines(updatedMedicines);
+        }
     };
 
-    const removeItem = (index) => {
-        const updatedMedicines = resultMedicines.filter((_, i) => i !== index);
-        setResultMedicines(updatedMedicines);
+    const removeItem = (index, isNew) => {
+        if (isNew) {
+            const updatedMedicines = resultMedicinesNew.filter((_, i) => i !== index);
+            setResultMedicinesNew(updatedMedicines);
+        } else {
+            const updatedMedicines = resultMedicines.filter((_, i) => i !== index);
+            setResultMedicines(updatedMedicines);
+        }
     };
 
     const handleSave = async () => {
@@ -115,23 +124,26 @@ function Result() {
                 });
             }
 
-            for (const resultMedicine of resultMedicines) {
+            for (const resultMedicine of resultMedicinesNew) {
+                if (!resultMedicine.isNew) {
+                    await api.post(`${url.RESULTMEDICINE.CREATE}`, resultMedicine);
+                }
+            }
+
+            for (const newMedicine of resultMedicinesNew) {
                 await api.post(url.RESULTMEDICINE.CREATE, {
                     resultId: id,
-                    medicineId: resultMedicine.medicineId,
-                    quantity: resultMedicine.quantity,
-                    description: resultMedicine.description
+                    medicineId: newMedicine.medicineId,
+                    quantity: newMedicine.quantity,
+                    description: newMedicine.description,
                 });
             }
-            console.log(resultMedicines)
 
-            // Re-fetch tests after update to reflect changes
             const testsResponse = await api.get(url.TEST.LIST);
             const filteredTests = testsResponse.data.filter(test => test.resultId == id);
             setTests(filteredTests);
 
-            // Navigate to appointment after saving
-            navigate('/appointment');
+            navigate('/invoice-view');
         } catch (error) {
             console.error("Error updating tests or result medicines:", error);
         }
@@ -231,7 +243,7 @@ function Result() {
                         onClick={handleAddMedicine}
                     >
                         Add Medicine
-                    </button>
+                        </button>
                 </div>
                 <div className="card-body">
                     <div className="table-responsive">
@@ -252,7 +264,8 @@ function Result() {
                                                 required
                                                 className="form-control"
                                                 value={rm.medicineId}
-                                                onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value)}
+                                                onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value, false)}
+                                                disabled={!rm.isNew}
                                             >
                                                 {medicines.map(med => (
                                                     <option key={med.id} value={med.id}>
@@ -267,7 +280,8 @@ function Result() {
                                                 type="number"
                                                 className="form-control"
                                                 value={rm.quantity}
-                                                onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value)}
+                                                onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value, false)}
+                                                disabled={!rm.isNew}
                                             />
                                         </td>
                                         <td>
@@ -276,14 +290,62 @@ function Result() {
                                                 type="text"
                                                 className="form-control"
                                                 value={rm.description}
-                                                onChange={(e) => handleMedicineChange(index, 'description', e.target.value)}
+                                                onChange={(e) => handleMedicineChange(index, 'description', e.target.value, false)}
+                                                disabled={!rm.isNew}
+                                            />
+                                        </td>
+                                        <td>
+                                            {rm.isNew && (
+                                                <button
+                                                    type="button"
+                                                    className="btn bg-danger-light trash remove-btn"
+                                                    onClick={() => removeItem(index, false)}
+                                                >
+                                                    <i className="far fa-trash-alt"></i>
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {resultMedicinesNew.map((rm, index) => (
+                                    <tr key={`new-${index}`}>
+                                        <td>
+                                            <select
+                                                required
+                                                className="form-control"
+                                                value={rm.medicineId}
+                                                onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value, true)}
+                                            >
+                                                {medicines.map(med => (
+                                                    <option key={med.id} value={med.id}>
+                                                        {med.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input 
+                                                required
+                                                type="number"
+                                                className="form-control"
+                                                value={rm.quantity}
+                                                onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value, true)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input 
+                                                required
+                                                type="text"
+                                                className="form-control"
+                                                value={rm.description}
+                                                onChange={(e) => handleMedicineChange(index, 'description', e.target.value, true)}
                                             />
                                         </td>
                                         <td>
                                             <button
                                                 type="button"
                                                 className="btn bg-danger-light trash remove-btn"
-                                                onClick={() => removeItem(index)}
+                                                onClick={() => removeItem(index, true)}
                                             >
                                                 <i className="far fa-trash-alt"></i>
                                             </button>
@@ -295,7 +357,7 @@ function Result() {
                     </div>
                 </div>
             </div>
-            
+
             <div className="row">
                 <div className="col-md-12 text-end">
                     <div className="submit-section">
@@ -314,3 +376,5 @@ function Result() {
 }
 
 export default Result;
+
+                    

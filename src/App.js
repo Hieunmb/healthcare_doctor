@@ -10,6 +10,7 @@ import Login from './components/auth/login';
 import { useJwt } from 'react-jwt';
 import Result from './components/pages/result';
 import MedicalExamination from './components/pages/medicalExamination';
+import Invoice from './components/pages/invoice';
 
 function App() {
   const location = useLocation();
@@ -60,6 +61,7 @@ const ProtectedLoginRoute = ({ element }) => {
                 <Route path="/login" element={<ProtectedLoginRoute element={<Login />} />} />
                 <Route path='/result/:id' element={<ProtectedRoute element={<Result/>}/>}/>
                 <Route path='/test/:id' element={<ProtectedRoute element={<MedicalExamination/>}/>}/>
+                <Route path='/invoice-view' element={<ProtectedRoute element={<Invoice/>}/>}/>
               </Routes>
               
             </div>

@@ -33,7 +33,8 @@ const url ={
         UPDATE:"/tests"
     },
     RESULTMEDICINE:{
-        CREATE:"/result_medicine"
+        CREATE:"/result_medicine",
+        DETAIL:"/result_medicine/resultId/"
     },
     MEDICINE:{
         LIST:"/medicine"
