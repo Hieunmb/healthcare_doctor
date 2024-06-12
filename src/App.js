@@ -16,7 +16,7 @@ function App() {
   const location = useLocation();
   
   // Check if the current path is /login
-  const isLoginPath = location.pathname === '/login' || location.pathname === "/invoice-view";
+  const isLoginPath = location.pathname === '/login' || location.pathname.startsWith("/invoice-view/");
   const ProtectedRoute = ({ element }) => {
     const token = localStorage.getItem("accessToken");
     const { isExpired, isInvalid } = useJwt(token);
@@ -61,7 +61,7 @@ const ProtectedLoginRoute = ({ element }) => {
                 <Route path="/login" element={<ProtectedLoginRoute element={<Login />} />} />
                 <Route path='/result/:id' element={<ProtectedRoute element={<Result/>}/>}/>
                 <Route path='/test/:id' element={<ProtectedRoute element={<MedicalExamination/>}/>}/>
-                <Route path='/invoice-view' element={<ProtectedRoute element={<Invoice/>}/>}/>
+                <Route path='/invoice-view/:id' element={<ProtectedRoute element={<Invoice/>}/>}/>
               </Routes>
               
             </div>

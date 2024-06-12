@@ -21,6 +21,7 @@ const url ={
         DETAIL:"/results/findById"
     },
     DOCTOR:{
+        LIST:"/doctors",
         LOGIN:"/doctors/login",
         PROFILE:"/doctors/profile"
     },
