@@ -14,10 +14,13 @@ function Result() {
     const [medicines, setMedicines] = useState([]);
     const [resultMedicines, setResultMedicines] = useState([]);
     const [resultMedicinesNew, setResultMedicinesNew] = useState([]);
+    const [doctor, setDoctor] = useState(null); // Add state for doctor
 
     useEffect(() => {
         const fetchResultAndTests = async () => {
             try {
+                const token = localStorage.getItem('accessToken'); // Retrieve the token from local storage
+                
                 const resultResponse = await api.get(`${url.RESULT.DETAIL}/${id}`);
                 setResult(resultResponse.data);
 
@@ -46,6 +49,14 @@ function Result() {
                 const resultMedicinesResponse = await api.get(`${url.RESULTMEDICINE.DETAIL}${id}`);
                 const existingResultMedicines = resultMedicinesResponse.data.map(medicine => ({ ...medicine, isNew: false }));
                 setResultMedicines(existingResultMedicines);
+
+                // Fetch doctor data with Bearer token
+                const doctorResponse = await api.get(url.DOCTOR.PROFILE, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setDoctor(doctorResponse.data);
             } catch (error) {
                 console.error("Error fetching result and test list:", error);
             }
@@ -53,7 +64,6 @@ function Result() {
 
         fetchResultAndTests();
     }, [id]);
-
     const handleDiagnoseUpdate = async () => {
         try {
             const updateResponse = await api.put(`${url.RESULT.LIST}/${id}`, { id: result.id, expense: result.expense, requestTest: result.requestTest, diagnoseEnd: newDiagnose });
@@ -213,17 +223,24 @@ function Result() {
                                         <td>{test.device.name}</td>
                                         <td>{test.expense}</td>
                                         <td>
-                                            {test.thumbnail ? (
-                                                <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
-                                            ) : (
-                                                <input 
-                                                    required
-                                                    type="file" 
-                                                    onChange={(e) => handleFileChange(e, test.id)} 
-                                                    className="form-control"
-                                                />
-                                            )}
-                                        </td>
+    {test.thumbnail ? (
+        <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
+    ) : (
+        doctor && (
+            doctor.role === "TESTDOCTOR" ? (
+                <input 
+                    required
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, test.id)} 
+                    className="form-control"
+                />
+            ) : doctor.role === "DOCTOR" && (
+                <span>No result yet</span>
+            )
+        )
+    )}
+</td>
+
                                     </tr>
                                 ))}
                             </tbody>
@@ -374,5 +391,3 @@ function Result() {
 }
 
 export default Result;
-
-                    
