@@ -149,7 +149,6 @@ function Result() {
                     description: newMedicine.description,
                 });
             }
-            await api.put(`${url.BOOKING.UPDATE}${result.bookingId}`);
             const testsResponse = await api.get(url.TEST.LIST);
             const filteredTests = testsResponse.data.filter(test => test.resultId == id);
             setTests(filteredTests);
