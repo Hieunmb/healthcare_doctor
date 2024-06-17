@@ -153,7 +153,11 @@ function Result() {
             const filteredTests = testsResponse.data.filter(test => test.resultId == id);
             setTests(filteredTests);
 
-            navigate('/invoice-view/'+id);
+            if (doctor && doctor.role === "DOCTOR") {
+                navigate('/invoice-view/' + id);
+            } else if (doctor && doctor.role === "TESTDOCTOR") {
+                window.location.reload();
+            }
         } catch (error) {
             console.error("Error updating tests or result medicines:", error);
         }
