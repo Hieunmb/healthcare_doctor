@@ -6,7 +6,7 @@ import url from "../../services/url";
 function Result() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const [result, setResult] = useState(null);
+    const [result, setResult] = useState({});
     const [tests, setTests] = useState([]);
     const [newDiagnose, setNewDiagnose] = useState("");
     const [patient, setPatient] = useState(null);
@@ -112,7 +112,9 @@ function Result() {
 
     const handleSave = async () => {
         try {
-            await handleDiagnoseUpdate();
+            if (doctor && doctor.role === "DOCTOR") {
+                await handleDiagnoseUpdate();
+            }
 
             for (const test of tests) {
                 const file = fileInputs[test.id];
@@ -135,25 +137,29 @@ function Result() {
                 });
             }
 
-            for (const resultMedicine of resultMedicinesNew) {
-                if (!resultMedicine.isNew) {
-                    await api.post(`${url.RESULTMEDICINE.CREATE}`, resultMedicine);
+            if (doctor && doctor.role === "DOCTOR") {
+                for (const resultMedicine of resultMedicinesNew) {
+                    if (!resultMedicine.isNew) {
+                        await api.post(`${url.RESULTMEDICINE.CREATE}`, resultMedicine);
+                    }
+                }
+
+                for (const newMedicine of resultMedicinesNew) {
+                    await api.post(url.RESULTMEDICINE.CREATE, {
+                        resultId: id,
+                        medicineId: newMedicine.medicineId,
+                        quantity: newMedicine.quantity,
+                        description: newMedicine.description,
+                    });
                 }
             }
 
-            for (const newMedicine of resultMedicinesNew) {
-                await api.post(url.RESULTMEDICINE.CREATE, {
-                    resultId: id,
-                    medicineId: newMedicine.medicineId,
-                    quantity: newMedicine.quantity,
-                    description: newMedicine.description,
-                });
-            }
             const testsResponse = await api.get(url.TEST.LIST);
             const filteredTests = testsResponse.data.filter(test => test.resultId == id);
             setTests(filteredTests);
 
             if (doctor && doctor.role === "DOCTOR") {
+                await api.put(`${url.BOOKING.UPDATE}${result.bookingId}`);
                 navigate('/invoice-view/' + id);
             } else if (doctor && doctor.role === "TESTDOCTOR") {
                 window.location.reload();
@@ -183,7 +189,7 @@ function Result() {
                     </div>
                 </div>
             )}
-            {result && (
+            {doctor && doctor.role === "DOCTOR" && result && (
                 <div className="card mb-4">
                     <div className="card-header">
                         <h4 className="card-title mb-0">Result Request Test</h4>
@@ -209,7 +215,7 @@ function Result() {
 
             <div className="card">
                 <div className="card-header">
-                    <h4 className="card-title mb-0">Test Results</h4>
+                    <h4 className="card-title mb=0">Test Results</h4>
                 </div>
                 <div className="card-body">
                     <div className="table-responsive">
@@ -217,7 +223,6 @@ function Result() {
                             <thead>
                                 <tr>
                                     <th>Test Diagnose</th>
-                                    <th>Expense</th>
                                     <th>Thumbnail Result</th>
                                 </tr>
                             </thead>
@@ -225,7 +230,6 @@ function Result() {
                                 {tests.map((test, index) => (
                                     <tr key={index}>
                                         <td>{test.device.name}</td>
-                                        <td>{test.expense}</td>
                                         <td>
                                             {test.thumbnail ? (
                                                 <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
@@ -252,10 +256,10 @@ function Result() {
                 </div>
             </div>
 
-            <div className="card">
-                <div className="card-header">
-                    <h4 className="card-title mb-0">Prescribe Medicines</h4>
-                    {doctor && doctor.role !== "TESTDOCTOR" && (
+            {doctor && doctor.role === "DOCTOR" && (
+                <div className="card">
+                    <div className="card-header">
+                        <h4 className="card-title mb-0">Prescribe Medicines</h4>
                         <button 
                             type="button" 
                             className="btn btn-primary btn-sm"
@@ -263,120 +267,120 @@ function Result() {
                         >
                             Add Medicine
                         </button>
-                    )}
-                </div>
-                <div className="card-body">
-                    <div className="table-responsive">
-                        <table className="table table-hover table-center add-table-items">
-                            <thead>
-                                <tr>
-                                    <th>Medicine</th>
-                                    <th>Quantity</th>
-                                    <th>Description</th>
-                                    <th>Remove</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {resultMedicines.map((rm, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            <select
-                                                required
-                                                className="form-control"
-                                                value={rm.medicineId}
-                                                onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value, false)}
-                                                disabled={!rm.isNew}
-                                            >
-                                                {medicines.map(med => (
-                                                    <option key={med.id} value={med.id}>
-                                                        {med.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input 
-                                                required
-                                                type="number"
-                                                className="form-control"
-                                                value={rm.quantity}
-                                                onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value, false)}
-                                                disabled={!rm.isNew}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input 
-                                                required
-                                                type="text"
-                                                className="form-control"
-                                                value={rm.description}
-                                                onChange={(e) => handleMedicineChange(index, 'description', e.target.value, false)}
-                                                disabled={!rm.isNew}
-                                            />
-                                        </td>
-                                        <td>
-                                            {rm.isNew && (
+                    </div>
+                    <div className="card-body">
+                        <div className="table-responsive">
+                            <table className="table table-hover table-center add-table-items">
+                                <thead>
+                                    <tr>
+                                        <th>Medicine</th>
+                                        <th>Quantity</th>
+                                        <th>Description</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {resultMedicines.map((rm, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <select
+                                                    required
+                                                    className="form-control"
+                                                    value={rm.medicineId}
+                                                    onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value, false)}
+                                                    disabled={!rm.isNew}
+                                                >
+                                                    {medicines.map(med => (
+                                                        <option key={med.id} value={med.id}>
+                                                            {med.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input 
+                                                    required
+                                                    type="number"
+                                                    className="form-control"
+                                                    value={rm.quantity}
+                                                    onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value, false)}
+                                                    disabled={!rm.isNew}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input 
+                                                    required
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={rm.description}
+                                                    onChange={(e) => handleMedicineChange(index, 'description', e.target.value, false)}
+                                                    disabled={!rm.isNew}
+                                                />
+                                            </td>
+                                            <td>
+                                                {rm.isNew && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn bg-danger-light trash remove-btn"
+                                                        onClick={() => removeItem(index, false)}
+                                                    >
+                                                        <i className="far fa-trash-alt"></i>
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {resultMedicinesNew.map((rm, index) => (
+                                        <tr key={`new-${index}`}>
+                                            <td>
+                                                <select
+                                                    required
+                                                    className="form-control"
+                                                    value={rm.medicineId}
+                                                    onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value, true)}
+                                                >
+                                                    {medicines.map(med => (
+                                                        <option key={med.id} value={med.id}>
+                                                            {med.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input 
+                                                    required
+                                                    type="number"
+                                                    className="form-control"
+                                                    value={rm.quantity}
+                                                    onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value, true)}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input 
+                                                    required
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={rm.description}
+                                                    onChange={(e) => handleMedicineChange(index, 'description', e.target.value, true)}
+                                                />
+                                            </td>
+                                            <td>
                                                 <button
                                                     type="button"
                                                     className="btn bg-danger-light trash remove-btn"
-                                                    onClick={() => removeItem(index, false)}
+                                                    onClick={() => removeItem(index, true)}
                                                 >
                                                     <i className="far fa-trash-alt"></i>
                                                 </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                                {resultMedicinesNew.map((rm, index) => (
-                                    <tr key={`new-${index}`}>
-                                        <td>
-                                            <select
-                                                required
-                                                className="form-control"
-                                                value={rm.medicineId}
-                                                onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value, true)}
-                                            >
-                                                {medicines.map(med => (
-                                                    <option key={med.id} value={med.id}>
-                                                        {med.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input 
-                                                required
-                                                type="number"
-                                                className="form-control"
-                                                value={rm.quantity}
-                                                onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value, true)}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input 
-                                                required
-                                                type="text"
-                                                className="form-control"
-                                                value={rm.description}
-                                                onChange={(e) => handleMedicineChange(index, 'description', e.target.value, true)}
-                                            />
-                                        </td>
-                                        <td>
-                                            <button
-                                                type="button"
-                                                className="btn bg-danger-light trash remove-btn"
-                                                onClick={() => removeItem(index, true)}
-                                            >
-                                                <i className="far fa-trash-alt"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             <div className="row">
                 <div className="col-md-12 text-end">
