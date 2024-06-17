@@ -139,7 +139,7 @@ function MedicalExamination() {
                             <table className="table table-hover table-center add-table-items">
                                 <thead>
                                     <tr>
-                                        <th>Test</th>
+                                        <th>TEST LIST</th>
                                         <th className="custom-class"></th>
                                     </tr>
                                 </thead>

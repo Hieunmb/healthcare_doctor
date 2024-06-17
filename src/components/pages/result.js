@@ -212,7 +212,7 @@ function Result() {
                         <table className="table table-hover table-center add-table-items">
                             <thead>
                                 <tr>
-                                    <th>Test</th>
+                                    <th>Test Diagnose</th>
                                     <th>Expense</th>
                                     <th>Thumbnail Result</th>
                                 </tr>
