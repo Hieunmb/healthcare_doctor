@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import url from "../../services/url";
+import { Modal } from "react-bootstrap";
 
 function Result() {
     const navigate = useNavigate();
@@ -15,6 +16,19 @@ function Result() {
     const [resultMedicines, setResultMedicines] = useState([]);
     const [resultMedicinesNew, setResultMedicinesNew] = useState([]);
     const [doctor, setDoctor] = useState(null); // Add state for doctor
+    const [showModal, setShowModal] = useState(false);
+    const [modalImageSrc, setModalImageSrc] = useState('');
+
+    // Function to open modal with selected image
+    const openModal = (imageSrc) => {
+        setModalImageSrc(imageSrc);
+        setShowModal(true);
+    };
+
+    // Function to close modal
+    const closeModal = () => {
+        setShowModal(false);
+    };
 
     useEffect(() => {
         const fetchResultAndTests = async () => {
@@ -232,7 +246,14 @@ function Result() {
                                         <td>{test.device.name}</td>
                                         <td>
                                             {test.thumbnail ? (
-                                                <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
+                                                <img
+                                                src={test.thumbnail}
+                                                alt="Thumbnail"
+                                                width={'200px'}
+                                                className="img-thumbnail"
+                                                onClick={() => openModal(test.thumbnail)}
+                                                style={{ cursor: 'pointer' }}
+                                            />
                                             ) : (
                                                 doctor && (
                                                     doctor.role === "TESTDOCTOR" ? (
@@ -252,6 +273,14 @@ function Result() {
                                 ))}
                             </tbody>
                         </table>
+                        <Modal show={showModal} onHide={closeModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Enlarged Image</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <img src={modalImageSrc} alt="Enlarged Thumbnail" width={'1000px'} className="img-fluid" />
+                </Modal.Body>
+            </Modal>
                     </div>
                 </div>
             </div>
