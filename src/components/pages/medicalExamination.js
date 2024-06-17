@@ -8,7 +8,7 @@ function MedicalExamination() {
     const navigate = useNavigate();
     const [requestTest, setRequestTest] = useState("");
     const [items, setItems] = useState([
-        { diagnose: '', expense: '0', doctorId: '', deviceId: "1", resultId: '' }
+        { expense: '0', doctorId: '', deviceId: "1", resultId: '' }
     ]);
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [doctor, setDoctor] = useState({ id: '' });
@@ -51,19 +51,12 @@ function MedicalExamination() {
     }, [id, accessToken]);
 
     const addItem = () => {
-        setItems([...items, { diagnose: '', expense: '0', doctorId: '', deviceId: '1', resultId: '' }]);
+        setItems([...items, { expense: '0', doctorId: '', deviceId: '1', resultId: '' }]);
     }
 
     const removeItem = (index) => {
         const newItems = [...items];
         newItems.splice(index, 1);
-        setItems(newItems);
-    }
-
-    const handleChange = (e, index) => {
-        const { name, value } = e.target;
-        const newItems = [...items];
-        newItems[index][name] = value;
         setItems(newItems);
     }
 
@@ -81,7 +74,6 @@ function MedicalExamination() {
             console.error("Selected device or device expense is undefined.");
         }
     }
-
 
     const handleSaveAll = async (e) => {
         e.preventDefault(); // Prevent default form submission behavior
@@ -114,21 +106,21 @@ function MedicalExamination() {
             <h2>Medical Examination</h2>
             {patient && (
             <div className="appointment-list">
-<div className="profile-info-widget">
-<a href="patient-profile.html" className="booking-doc-img">
-<img src="../assets/img/patients/ava.jpg" alt="User Image"/>
-</a>
-<div className="profile-det-info">
-<h3><a href="patient-profile.html">{patient.name}</a></h3>
-<div className="patient-details">
-<h5><i className="fas fa-transgender"></i> {patient.gender}</h5>
-<h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
-<h5><i className="fas fa-envelope"></i>{patient.email}</h5>
-<h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
-</div>
-</div>
-</div>
-</div>
+                <div className="profile-info-widget">
+                    <a href="patient-profile.html" className="booking-doc-img">
+                        <img src="../assets/img/patients/ava.jpg" alt="User Image"/>
+                    </a>
+                    <div className="profile-det-info">
+                        <h3><a href="patient-profile.html">{patient.name}</a></h3>
+                        <div className="patient-details">
+                            <h5><i className="fas fa-transgender"></i> {patient.gender}</h5>
+                            <h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
+                            <h5><i className="fas fa-envelope"></i>{patient.email}</h5>
+                            <h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
             )}
             <form onSubmit={handleSaveAll}>
                 <div>
@@ -147,23 +139,13 @@ function MedicalExamination() {
                             <table className="table table-hover table-center add-table-items">
                                 <thead>
                                     <tr>
-                                        <th>Diagnose</th>
-                                        <th>Device</th>
+                                        <th>Test</th>
                                         <th className="custom-class"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {items.map((item, index) => (
                                         <tr key={index}>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    name="diagnose"
-                                                    value={item.diagnose}
-                                                    onChange={(e) => handleChange(e, index)}
-                                                />
-                                            </td>
                                             <td>
                                                 <select
                                                     className="form-control"
