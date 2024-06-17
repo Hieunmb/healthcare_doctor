@@ -202,18 +202,16 @@ function Result() {
                         <table className="table table-hover table-center add-table-items">
                             <thead>
                                 <tr>
-                                    <th>Diagnose</th>
+                                    <th>Test</th>
                                     <th>Expense</th>
-                                    <th>Device</th>
                                     <th>Thumbnail Result</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {tests.map((test, index) => (
                                     <tr key={index}>
-                                        <td>{test.diagnose}</td>
+                                        <td>{test.device.name}</td>
                                         <td>{test.expense}</td>
-                                        <td>{test.device.name} - ${test.device.expense}</td>
                                         <td>
                                             {test.thumbnail ? (
                                                 <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
