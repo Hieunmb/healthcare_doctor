@@ -64,6 +64,7 @@ function Result() {
 
         fetchResultAndTests();
     }, [id]);
+
     const handleDiagnoseUpdate = async () => {
         try {
             const updateResponse = await api.put(`${url.RESULT.LIST}/${id}`, { id: result.id, expense: result.expense, requestTest: result.requestTest, diagnoseEnd: newDiagnose });
@@ -223,24 +224,23 @@ function Result() {
                                         <td>{test.device.name}</td>
                                         <td>{test.expense}</td>
                                         <td>
-    {test.thumbnail ? (
-        <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
-    ) : (
-        doctor && (
-            doctor.role === "TESTDOCTOR" ? (
-                <input 
-                    required
-                    type="file" 
-                    onChange={(e) => handleFileChange(e, test.id)} 
-                    className="form-control"
-                />
-            ) : doctor.role === "DOCTOR" && (
-                <span>No result yet</span>
-            )
-        )
-    )}
-</td>
-
+                                            {test.thumbnail ? (
+                                                <img src={test.thumbnail} alt="Thumbnail" className="img-thumbnail" />
+                                            ) : (
+                                                doctor && (
+                                                    doctor.role === "TESTDOCTOR" ? (
+                                                        <input 
+                                                            required
+                                                            type="file" 
+                                                            onChange={(e) => handleFileChange(e, test.id)} 
+                                                            className="form-control"
+                                                        />
+                                                    ) : doctor.role === "DOCTOR" && (
+                                                        <span>No result yet</span>
+                                                    )
+                                                )
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -252,13 +252,15 @@ function Result() {
             <div className="card">
                 <div className="card-header">
                     <h4 className="card-title mb-0">Prescribe Medicines</h4>
-                    <button 
-                        type="button" 
-                        className="btn btn-primary btn-sm"
-                        onClick={handleAddMedicine}
-                    >
-                        Add Medicine
+                    {doctor && doctor.role !== "TESTDOCTOR" && (
+                        <button 
+                            type="button" 
+                            className="btn btn-primary btn-sm"
+                            onClick={handleAddMedicine}
+                        >
+                            Add Medicine
                         </button>
+                    )}
                 </div>
                 <div className="card-body">
                     <div className="table-responsive">
