@@ -7,9 +7,7 @@ function MedicalExamination() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [requestTest, setRequestTest] = useState("");
-    const [items, setItems] = useState([
-        { expense: '0', doctorId: '', deviceId: "1", resultId: '' }
-    ]);
+    const [items, setItems] = useState([]); // Initialize with an empty array
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [doctor, setDoctor] = useState({ id: '' });
     const [devices, setDevices] = useState([]);
@@ -125,14 +123,15 @@ function MedicalExamination() {
             <form onSubmit={handleSaveAll}>
                 <div>
                     <label style={{ float: "left" }} htmlFor="requestTest">Medical Examination Reason:</label>
-                    <textarea className="form-control" value={requestTest} onChange={(e) => setRequestTest(e.target.value)} />
+                    <textarea className="form-control" required value={requestTest} onChange={(e) => setRequestTest(e.target.value)} />
                 </div>
 
                 {/* Test items */}
                 <div className="add-more-item text-end">
-                    <a className="add-items" onClick={addItem}><i className="fas fa-plus-circle"></i> Add Item</a>
+                    <a className="add-items" onClick={addItem}><i className="fas fa-plus-circle"></i> Add Test</a>
                 </div>
 
+                {items.length > 0 && (
                 <div className="card card-table">
                     <div className="card-body">
                         <div className="table-responsive">
@@ -154,7 +153,7 @@ function MedicalExamination() {
                                                     onChange={(e) => handleDeviceChange(e, index)}
                                                 >
                                                     {devices.map(device => (
-                                                        <option key={device.id} value={device.id}>{device.name} - ${device.expense}</option>
+                                                        <option key={device.id} value={device.id}>{device.name} </option>
                                                     ))}
                                                 </select>
                                             </td>
@@ -174,6 +173,7 @@ function MedicalExamination() {
                         </div>
                     </div>
                 </div>
+                )}
 
                 <div className="row">
                     <div className="col-md-12 text-end">

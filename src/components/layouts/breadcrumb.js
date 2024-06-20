@@ -6,17 +6,22 @@ function BreadCrumb({ currentLocation }){
     const location = useLocation();
 
 
-    let breadcrumbName = 'Default';
+    let breadcrumbName;
 
-    switch (currentLocation) {
-        case '/':
-          breadcrumbName = 'Dashboard';
-          break;
-          case '/appointment':
-          breadcrumbName = 'Appointment';
-          break;
-    }
-
+switch (true) {
+    case currentLocation === '/':
+        breadcrumbName = 'Dashboard';
+        break;
+    case currentLocation === '/appointment':
+        breadcrumbName = 'Appointment';
+        break;
+    case currentLocation.startsWith('/result/'):
+        breadcrumbName = 'Result';
+        break;
+    default:
+        breadcrumbName = 'Unknown';
+        break;
+}
     return(
         <section>
                 <div className="breadcrumb-bar-two">
