@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import url from "../../services/url";
-import { Modal } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
+import Select from 'react-select';
 
 function Result() {
     const navigate = useNavigate();
@@ -15,17 +16,16 @@ function Result() {
     const [medicines, setMedicines] = useState([]);
     const [resultMedicines, setResultMedicines] = useState([]);
     const [resultMedicinesNew, setResultMedicinesNew] = useState([]);
-    const [doctor, setDoctor] = useState(null); // Add state for doctor
+    const [doctor, setDoctor] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [modalImageSrc, setModalImageSrc] = useState('');
+    const [selectedMedicine, setSelectedMedicine] = useState(null);
 
-    // Function to open modal with selected image
     const openModal = (imageSrc) => {
         setModalImageSrc(imageSrc);
         setShowModal(true);
     };
 
-    // Function to close modal
     const closeModal = () => {
         setShowModal(false);
     };
@@ -33,7 +33,7 @@ function Result() {
     useEffect(() => {
         const fetchResultAndTests = async () => {
             try {
-                const token = localStorage.getItem('accessToken'); // Retrieve the token from local storage
+                const token = localStorage.getItem('accessToken');
                 
                 const resultResponse = await api.get(`${url.RESULT.DETAIL}/${id}`);
                 setResult(resultResponse.data);
@@ -64,7 +64,6 @@ function Result() {
                 const existingResultMedicines = resultMedicinesResponse.data.map(medicine => ({ ...medicine, isNew: false }));
                 setResultMedicines(existingResultMedicines);
 
-                // Fetch doctor data with Bearer token
                 const doctorResponse = await api.get(url.DOCTOR.PROFILE, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -96,10 +95,7 @@ function Result() {
     };
 
     const handleAddMedicine = () => {
-        setResultMedicinesNew([
-            ...resultMedicinesNew,
-            { medicineId: "1", quantity: "", description: "", isNew: true }
-        ]);
+        setShowModal(true);
     };
 
     const handleMedicineChange = (index, field, value, isNew) => {
@@ -182,6 +178,19 @@ function Result() {
             console.error("Error updating tests or result medicines:", error);
         }
     };
+
+    const handleModalSelect = (selectedOption) => {
+        setResultMedicinesNew([
+            ...resultMedicinesNew,
+            { medicineId: selectedOption.value, quantity: "", description: "", isNew: true }
+        ]);
+        setShowModal(false);
+    };
+
+    const medicineOptions = medicines.map(medicine => ({
+        value: medicine.id,
+        label: medicine.name
+    }));
 
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
@@ -274,13 +283,13 @@ function Result() {
                             </tbody>
                         </table>
                         <Modal show={showModal} onHide={closeModal} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Enlarged Image</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <img src={modalImageSrc} alt="Enlarged Thumbnail" width={'1000px'} className="img-fluid" />
-                </Modal.Body>
-            </Modal>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Enlarged Image</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <img src={modalImageSrc} alt="Enlarged Thumbnail" width={'1000px'} className="img-fluid" />
+                            </Modal.Body>
+                        </Modal>
                     </div>
                 </div>
             </div>
@@ -410,6 +419,24 @@ function Result() {
                     </div>
                 </div>
             )}
+
+            <Modal show={showModal} onHide={closeModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Select Medicine</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Select 
+                        options={medicineOptions}
+                        onChange={handleModalSelect}
+                        placeholder="Search for a medicine..."
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={closeModal}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
             <div className="row">
                 <div className="col-md-12 text-end">
