@@ -65,7 +65,7 @@ function Invoice() {
         setShowModal(false);
         setModalImage('');
     };
-    console.log(medicines)
+
     return (
         <div className="content">
             <div className="container">
@@ -112,94 +112,86 @@ function Invoice() {
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="invoice-item invoice-table-wrap">
-                                <div className="row">
-                                    <div className="col-md-12">
-                                        <div className="table-responsive">
-                                            <table className="invoice-table table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Description</th>
-                                                        <th className="text-center">Result</th>
-                                                        <th className="text-end">Total</th>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <div className="invoice-content">
+                                    <h3 className="table-title">Tests</h3>
+                                    <div className="table-responsive">
+                                        <table className="invoice-table table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Description</th>
+                                                    <th className="text-center">Result</th>
+                                                    <th className="text-end">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {tests.map(test => (
+                                                    <tr key={test.id}>
+                                                        <td>{test.device.name}</td>
+                                                        <td className="text-center">
+                                                            <img
+                                                                src={test.thumbnail}
+                                                                alt="Thumbnail"
+                                                                width={'200px'}
+                                                                className="img-thumbnail"
+                                                                onClick={() => openModal(test.thumbnail)}
+                                                                style={{ cursor: 'pointer' }}
+                                                            />
+                                                        </td>
+                                                        <td className="text-end">${test.expense}</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {tests.map(test => (
-                                                        <tr key={test.id}>
-                                                            <td>{test.device.name}</td>
-                                                            <td className="text-center">
-                                                                <img
-                                                                    src={test.thumbnail}
-                                                                    alt="Thumbnail"
-                                                                    width={'200px'}
-                                                                    className="img-thumbnail"
-                                                                    onClick={() => openModal(test.thumbnail)}
-                                                                    style={{ cursor: 'pointer' }}
-                                                                />
-                                                            </td>
-                                                            <td className="text-end">${test.expense}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <div className="col-md-6 col-xl-4 ms-auto">
-                                        <div className="table-responsive">
-                                            <table className="invoice-table-two table">
-                                                <tbody>
-                                                    <tr>
-                                                        <th>Subtotal:</th>
-                                                        <td><span>${tests.reduce((total, test) => total + test.expense, 0)}</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Discount:</th>
-                                                        <td><span>-10%</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Total Amount:</th>
-                                                        <td><span>${tests.reduce((total, test) => total + test.expense, 0) * 0.9}</span></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                    <div className="table-responsive">
+                                        <table className="invoice-table-two table">
+                                            <tbody>
+                                                <tr>
+                                                    <th>Subtotal:</th>
+                                                    <td><span>${tests.reduce((total, test) => total + test.expense, 0)}</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Amount:</th>
+                                                    <td><span>${tests.reduce((total, test) => total + test.expense, 0)}</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="invoice-item invoice-table-wrap">
-                                <div className="row">
-                                    <div className="col-md-12">
-                                        <div className="table-responsive">
-                                            <table className="invoice-table table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Medicine</th>
-                                                        <th className="text-center">Quantity</th>
-                                                        <th className="text-center">Note</th>
+                            <div className="col-md-6">
+                                <div className="invoice-content">
+                                    <h3 className="table-title">Medicines</h3>
+                                    <div className="table-responsive">
+                                        <table className="invoice-table table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Medicine</th>
+                                                    <th className="text-center">Quantity</th>
+                                                    <th className="text-center">Note</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {medicines.map(medicine => (
+                                                    <tr key={medicine.id}>
+                                                        <td>{medicine.medicine.name}</td>
+                                                        <td className="text-center">{medicine.quantity}</td>
+                                                        <td className="text-center">{medicine.description}</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {medicines.map(medicine => (
-                                                        <tr key={medicine.id}>
-                                                            <td>{medicine.medicine.name}</td>
-                                                            <td className="text-center">{medicine.quantity}</td>
-                                                            <td className="text-center">{medicine.description}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="other-info">
-                                <h4>Other information</h4>
-                                <p className="text-muted mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed dictum ligula, cursus blandit risus. Maecenas eget metus non tellus dignissim aliquam ut a ex. Maecenas sed vehicula dui, ac suscipit lacus. Sed finibus leo vitae lorem interdum, eu scelerisque tellus fermentum. Curabitur sit amet lacinia lorem. Nullam finibus pellentesque libero.</p>
-                            </div>
+                        <div className="other-info">
+                            <h4>Other information</h4>
+                            <p className="text-muted mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed dictum ligula, cursus blandit risus. Maecenas eget metus non tellus dignissim aliquam ut a ex. Maecenas sed vehicula dui, ac suscipit lacus. Sed finibus leo vitae lorem interdum, eu scelerisque tellus fermentum. Curabitur sit amet lacinia lorem. Nullam finibus pellentesque libero.</p>
                         </div>
                     </div>
                 </div>
