@@ -52,6 +52,10 @@ function Appointment() {
         navigate(`/result/${resultId}`);
     };
 
+    const handleViewInvoice = (resultId) => {
+        navigate(`/invoice-view/${resultId}`);
+    };
+
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             <div className="appointments">
@@ -85,6 +89,11 @@ function Appointment() {
                                 </div>
                             </div>
                             <div className="appointment-action">
+                                {booking.status == 4 ? (
+                                    <a href="" onClick={() => handleViewInvoice(result.id)} className="btn btn-sm bg-warning-light">
+                                        <i className="fa-solid fa-file-invoice"></i> View Invoice
+                                    </a>
+                                ) : (
                                     <>
                                         <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
                                             <i className="fa-solid fa-eye"></i> View Result
@@ -93,6 +102,7 @@ function Appointment() {
                                             <i className="fa-solid fa-plus"></i> Create test
                                         </a>
                                     </>
+                                )}
                             </div>
                         </div>
                     );
