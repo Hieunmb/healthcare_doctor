@@ -72,18 +72,6 @@ fetchDoctorProfile();
                                     <span>My Patients</span>
                                 </a>
                             </li>
-                            <li className={activeLink === 'doctor-profile-settings' ? 'active' : ''}>
-                                <a onClick={() => handleNavigation('doctor-profile-settings')}>
-                                    <i className="fas fa-user-cog"></i>
-                                    <span>Profile Settings</span>
-                                </a>
-                            </li>
-                            <li className={activeLink === 'doctor-change-password' ? 'active' : ''}>
-                                <a onClick={() => handleNavigation('doctor-change-password')}>
-                                    <i className="fas fa-lock"></i>
-                                    <span>Change Password</span>
-                                </a>
-                            </li>
                         </ul>
                     </nav>
                 </div>

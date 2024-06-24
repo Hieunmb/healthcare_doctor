@@ -64,29 +64,6 @@ fetchDoctorProfile();
                     <li className="has-submenu megamenu active">
                         <a style={{marginRight:"10px"}} href="javascript:void(0);">Home</a>
                     </li>
-                    <li className="has-submenu">
-                        <a href="javascript:void(0);">Doctors <i className="fas fa-chevron-down"></i></a>
-                        <ul className="submenu">
-                        <li><a href="doctor-dashboard.html">Doctor Dashboard</a></li>
-                        <li><a href="appointments.html">Appointments</a></li>
-                        <li><a href="schedule-timings.html">Schedule Timing</a></li>
-                        <li><a href="my-patients.html">Patients List</a></li>
-                        <li><a href="patient-profile.html">Patients Profile</a></li>
-                        <li><a href="chat-doctor.html">Chat</a></li>
-                        <li><a href="invoices.html">Invoices</a></li>
-                        <li><a href="doctor-profile-settings.html">Profile Settings</a></li>
-                        <li><a href="reviews.html">Reviews</a></li>
-                        <li><a href="doctor-register.html">Doctor Register</a></li>
-                        <li className="has-submenu">
-                            <a href="doctor-blog.html">Blog</a>
-                            <ul className="submenu">
-                            <li><a href="doctor-blog.html">Blog</a></li>
-                            <li><a href="blog-details.html">Blog view</a></li>
-                            <li><a href="doctor-add-blog.html">Add Blog</a></li>
-                            </ul>
-                        </li>
-                        </ul>
-                    </li>
                     <li className="searchbar">
                         <a href="javascript:void(0);"><i className="feather-search"></i></a>
                         <div className="togglesearch">
