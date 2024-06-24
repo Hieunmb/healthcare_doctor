@@ -20,6 +20,8 @@ function Result() {
     const [showModal, setShowModal] = useState(false);
     const [modalImageSrc, setModalImageSrc] = useState('');
     const [selectedMedicine, setSelectedMedicine] = useState(null);
+    const [canSave, setCanSave] = useState(false);
+
 
     const openModal = (imageSrc) => {
         setModalImageSrc(imageSrc);
@@ -37,33 +39,37 @@ function Result() {
                 
                 const resultResponse = await api.get(`${url.RESULT.DETAIL}/${id}`);
                 setResult(resultResponse.data);
-
+    
                 const patientsResponse = await api.get(url.PATIENT.REGISTER);
                 const foundPatient = patientsResponse.data.find(
                     patient => patient.id == resultResponse.data.booking.patientId
                 );
                 setPatient(foundPatient);
-
+    
                 const testsResponse = await api.get(url.TEST.LIST);
                 const filteredTests = testsResponse.data.filter(test => test.resultId == id);
-
+    
                 const devicesResponse = await api.get(url.DEVICE.LIST);
                 const devices = devicesResponse.data;
-
+    
                 const updatedTests = filteredTests.map(test => {
                     const device = devices.find(device => device.id == test.deviceId);
                     return { ...test, device };
                 });
-
+    
                 setTests(updatedTests);
-
+    
+                // Check if all tests have images initially
+                const allTestsHaveImages = updatedTests.every(test => test.thumbnail);
+                setCanSave(allTestsHaveImages);
+    
                 const medicinesResponse = await api.get(url.MEDICINE.LIST);
                 setMedicines(medicinesResponse.data);
-
+    
                 const resultMedicinesResponse = await api.get(`${url.RESULTMEDICINE.DETAIL}${id}`);
                 const existingResultMedicines = resultMedicinesResponse.data.map(medicine => ({ ...medicine, isNew: false }));
                 setResultMedicines(existingResultMedicines);
-
+    
                 const doctorResponse = await api.get(url.DOCTOR.PROFILE, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -74,10 +80,10 @@ function Result() {
                 console.error("Error fetching result and test list:", error);
             }
         };
-
+    
         fetchResultAndTests();
     }, [id]);
-
+    
     const handleDiagnoseUpdate = async () => {
         try {
             const updateResponse = await api.put(`${url.RESULT.LIST}/${id}`, { id: result.id, expense: result.expense, requestTest: result.requestTest, diagnoseEnd: newDiagnose });
@@ -92,7 +98,11 @@ function Result() {
             ...fileInputs,
             [testId]: e.target.files[0],
         });
+        // Check if all tests have images
+        const allTestsHaveImages = tests.every(test => fileInputs[test.id] || test.thumbnail || (test.id === testId && e.target.files[0]));
+        setCanSave(allTestsHaveImages);
     };
+    
 
     const handleAddMedicine = () => {
         setShowModal(true);
@@ -121,11 +131,13 @@ function Result() {
     };
 
     const handleSave = async () => {
+        if (!canSave) return;
+    
         try {
             if (doctor && doctor.role === "DOCTOR") {
                 await handleDiagnoseUpdate();
             }
-
+    
             for (const test of tests) {
                 const file = fileInputs[test.id];
                 const formData = new FormData();
@@ -133,27 +145,27 @@ function Result() {
                 formData.append("expense", test.expense);
                 formData.append("resultId", test.resultId);
                 formData.append("deviceId", test.deviceId);
-
+    
                 if (file) {
                     formData.append("thumbnail", file);
                 } else if (test.thumbnail) {
                     formData.append("thumbnail", test.thumbnail);
                 }
-
+    
                 await api.put(`${url.TEST.UPDATE}/${test.id}`, formData, {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
                 });
             }
-
+    
             if (doctor && doctor.role === "DOCTOR") {
                 for (const resultMedicine of resultMedicinesNew) {
                     if (!resultMedicine.isNew) {
                         await api.post(`${url.RESULTMEDICINE.CREATE}`, resultMedicine);
                     }
                 }
-
+    
                 for (const newMedicine of resultMedicinesNew) {
                     await api.post(url.RESULTMEDICINE.CREATE, {
                         resultId: id,
@@ -163,11 +175,11 @@ function Result() {
                     });
                 }
             }
-
+    
             const testsResponse = await api.get(url.TEST.LIST);
             const filteredTests = testsResponse.data.filter(test => test.resultId == id);
             setTests(filteredTests);
-
+    
             if (doctor && doctor.role === "DOCTOR") {
                 await api.put(`${url.BOOKING.UPDATE}${result.bookingId}`);
                 navigate('/invoice-view/' + id);
@@ -178,6 +190,7 @@ function Result() {
             console.error("Error updating tests or result medicines:", error);
         }
     };
+    
 
     const handleModalSelect = (selectedOption) => {
         setResultMedicinesNew([
@@ -439,18 +452,20 @@ function Result() {
             </Modal>
 
             <div className="row">
-                <div className="col-md-12 text-end">
-                    <div className="submit-section">
-                        <button 
-                            type="button" 
-                            className="btn btn-primary submit-btn" 
-                            onClick={handleSave}
-                        >
-                            Save
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <div className="col-md-12 text-end">
+        <div className="submit-section">
+            <button 
+                type="button" 
+                className={`btn submit-btn ${canSave ? "btn-primary" : "btn-secondary"}`} 
+                onClick={handleSave}
+                disabled={!canSave}
+            >
+                Save
+            </button>
+        </div>
+    </div>
+</div>
+
         </div>
     );
 }
