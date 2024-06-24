@@ -17,19 +17,26 @@ function Result() {
     const [resultMedicines, setResultMedicines] = useState([]);
     const [resultMedicinesNew, setResultMedicinesNew] = useState([]);
     const [doctor, setDoctor] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [showImageModal, setShowImageModal] = useState(false);
+    const [showMedicineModal, setShowMedicineModal] = useState(false);
     const [modalImageSrc, setModalImageSrc] = useState('');
-    const [selectedMedicine, setSelectedMedicine] = useState(null);
     const [canSave, setCanSave] = useState(false);
 
-
-    const openModal = (imageSrc) => {
+    const openImageModal = (imageSrc) => {
         setModalImageSrc(imageSrc);
-        setShowModal(true);
+        setShowImageModal(true);
     };
 
-    const closeModal = () => {
-        setShowModal(false);
+    const closeImageModal = () => {
+        setShowImageModal(false);
+    };
+
+    const openMedicineModal = () => {
+        setShowMedicineModal(true);
+    };
+
+    const closeMedicineModal = () => {
+        setShowMedicineModal(false);
     };
 
     useEffect(() => {
@@ -102,10 +109,9 @@ function Result() {
         const allTestsHaveImages = tests.every(test => fileInputs[test.id] || test.thumbnail || (test.id === testId && e.target.files[0]));
         setCanSave(allTestsHaveImages);
     };
-    
 
     const handleAddMedicine = () => {
-        setShowModal(true);
+        setShowMedicineModal(true);
     };
 
     const handleMedicineChange = (index, field, value, isNew) => {
@@ -190,14 +196,13 @@ function Result() {
             console.error("Error updating tests or result medicines:", error);
         }
     };
-    
 
     const handleModalSelect = (selectedOption) => {
         setResultMedicinesNew([
             ...resultMedicinesNew,
             { medicineId: selectedOption.value, quantity: "", description: "", isNew: true }
         ]);
-        setShowModal(false);
+        setShowMedicineModal(false);
     };
 
     const medicineOptions = medicines.map(medicine => ({
@@ -273,7 +278,7 @@ function Result() {
                                                 alt="Thumbnail"
                                                 width={'200px'}
                                                 className="img-thumbnail"
-                                                onClick={() => openModal(test.thumbnail)}
+                                                onClick={() => openImageModal(test.thumbnail)}
                                                 style={{ cursor: 'pointer' }}
                                             />
                                             ) : (
@@ -295,7 +300,7 @@ function Result() {
                                 ))}
                             </tbody>
                         </table>
-                        <Modal show={showModal} onHide={closeModal} centered>
+                        <Modal show={showImageModal} onHide={closeImageModal} centered>
                             <Modal.Header closeButton>
                                 <Modal.Title>Enlarged Image</Modal.Title>
                             </Modal.Header>
@@ -433,7 +438,7 @@ function Result() {
                 </div>
             )}
 
-            <Modal show={showModal} onHide={closeModal} centered>
+            <Modal show={showMedicineModal} onHide={closeMedicineModal} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Select Medicine</Modal.Title>
                 </Modal.Header>
@@ -445,27 +450,26 @@ function Result() {
                     />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={closeModal}>
+                    <Button variant="secondary" onClick={closeMedicineModal}>
                         Close
                     </Button>
                 </Modal.Footer>
             </Modal>
 
             <div className="row">
-    <div className="col-md-12 text-end">
-        <div className="submit-section">
-            <button 
-                type="button" 
-                className={`btn submit-btn ${canSave ? "btn-primary" : "btn-secondary"}`} 
-                onClick={handleSave}
-                disabled={!canSave}
-            >
-                Save
-            </button>
-        </div>
-    </div>
-</div>
-
+                <div className="col-md-12 text-end">
+                    <div className="submit-section">
+                        <button 
+                            type="button" 
+                            className={`btn submit-btn ${canSave ? "btn-primary" : "btn-secondary"}`} 
+                            onClick={handleSave}
+                            disabled={!canSave}
+                        >
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
