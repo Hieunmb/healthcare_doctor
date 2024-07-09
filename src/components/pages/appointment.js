@@ -75,13 +75,19 @@ function Appointment() {
                     return (
                         <div className="appointment-list" key={index}>
                             <div className="profile-info-widget">
-                                <a href="patient-profile.html" className="booking-doc-img">
+                                <a href="" className="booking-doc-img">
                                     <img src="assets/img/patients/ava.jpg" alt="User Image" />
                                 </a>
                                 <div className="profile-det-info">
-                                    <h3><a href="patient-profile.html">{patient.name} - {result.requestTest}</a></h3>
+                                <h5 type="button" class="btn btn-rounded btn-primary">#{booking.id}</h5>
+                                <h3>
+                                    <a href="">
+                                        {patient.name} - {result.diagnoseEnd ? result.diagnoseEnd : result.requestTest}
+                                    </a>
+                                </h3>
+
                                     <div className="patient-details">
-                                        <h5><i className="far fa-clock"></i> {booking.date}</h5>
+                                        <h5><i className="far fa-clock"></i> {booking.date} - {booking.shift.time}</h5>
                                         <h5><i className="fas fa-map-marker-alt"></i> {patient.address}</h5>
                                         <h5><i className="fas fa-envelope"></i> {patient.email}</h5>
                                         <h5 className="mb-0"><i className="fas fa-phone"></i> {patient.phonenumber}</h5>
@@ -89,10 +95,15 @@ function Appointment() {
                                 </div>
                             </div>
                             <div className="appointment-action">
-                                {booking.status == 4 ? (
+                                {booking.status >= 4 ? (
+                                    <>
                                     <a href="" onClick={() => handleViewInvoice(result.id)} className="btn btn-sm bg-warning-light">
                                         <i className="fa-solid fa-file-invoice"></i> View Invoice
                                     </a>
+                                    <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
+                                    <i className="fa-solid fa-pen"></i> Edit
+                                </a>
+                                </>
                                 ) : (
                                     <>
                                         <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">

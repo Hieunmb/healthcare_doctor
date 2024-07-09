@@ -93,7 +93,7 @@ function Result() {
     
     const handleDiagnoseUpdate = async () => {
         try {
-            const updateResponse = await api.put(`${url.RESULT.LIST}/${id}`, { id: result.id, expense: result.expense, requestTest: result.requestTest, diagnoseEnd: newDiagnose });
+            const updateResponse = await api.put(`${url.RESULT.LIST}/${id}`, { id: result.id, expense: tests.reduce((total, test) => total + test.expense, 0), requestTest: result.requestTest, diagnoseEnd: newDiagnose });
             setResult(updateResponse.data);
         } catch (error) {
             console.error("Error updating diagnose:", error);
@@ -126,15 +126,29 @@ function Result() {
         }
     };
 
-    const removeItem = (index, isNew) => {
-        if (isNew) {
-            const updatedMedicines = resultMedicinesNew.filter((_, i) => i !== index);
-            setResultMedicinesNew(updatedMedicines);
-        } else {
-            const updatedMedicines = resultMedicines.filter((_, i) => i !== index);
-            setResultMedicines(updatedMedicines);
+    const removeItem = async (index, isNew) => {
+        try {
+            if (isNew) {
+                const updatedMedicines = resultMedicinesNew.filter((_, i) => i !== index);
+                setResultMedicinesNew(updatedMedicines);
+            } else {
+                const updatedMedicines = resultMedicines.filter((_, i) => i !== index);
+                setResultMedicines(updatedMedicines);
+            }
+        } catch (error) {
+            console.error("Error removing medicine:", error);
         }
     };
+    const removeItemFromAPI = async (id) => {
+        try {
+            await api.delete(`${url.RESULTMEDICINE.DELETE}${id}`);
+            const updatedMedicines = resultMedicines.filter(medicine => medicine.id !== id);
+            setResultMedicines(updatedMedicines);
+        } catch (error) {
+            console.error("Error removing medicine:", error);
+        }
+    };
+    
 
     const handleSave = async () => {
         if (!canSave) return;
@@ -182,13 +196,10 @@ function Result() {
                 }
             }
     
-            const testsResponse = await api.get(url.TEST.LIST);
-            const filteredTests = testsResponse.data.filter(test => test.resultId == id);
-            setTests(filteredTests);
     
             if (doctor && doctor.role === "DOCTOR") {
                 await api.put(`${url.BOOKING.UPDATE}${result.bookingId}`);
-                navigate('/invoice-view/' + id);
+                navigate('/appointment');
             } else if (doctor && doctor.role === "TESTDOCTOR") {
                 window.location.reload();
             }
@@ -205,49 +216,34 @@ function Result() {
         setShowMedicineModal(false);
     };
 
-    const medicineOptions = medicines.map(medicine => ({
+    const getAvailableMedicines = () => {
+        const existingMedicineIds = [
+            ...resultMedicines.map(m => m.medicineId),
+            ...resultMedicinesNew.map(m => m.medicineId)
+        ];
+
+        return medicines.filter(medicine => !existingMedicineIds.includes(medicine.id));
+    };
+
+    const medicineOptions = getAvailableMedicines().map(medicine => ({
         value: medicine.id,
         label: medicine.name
     }));
-
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             {patient && (
                 <div className="appointment-list">
                     <div className="profile-info-widget">
-                        <a href="patient-profile.html" className="booking-doc-img">
+                        <a href="" className="booking-doc-img">
                             <img src="../assets/img/patients/ava.jpg" alt="User Image"/>
                         </a>
                         <div className="profile-det-info">
-                            <h3><a href="patient-profile.html">{patient.name}</a></h3>
+                            <h3><a href="">{patient.name}</a></h3>
                             <div className="patient-details">
                                 <h5><i className="fas fa-transgender"></i> {patient.gender}</h5>
                                 <h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
                                 <h5><i className="fas fa-envelope"></i>{patient.email}</h5>
                                 <h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {doctor && doctor.role === "DOCTOR" && result && (
-                <div className="card mb-4">
-                    <div className="card-header">
-                        <h4 className="card-title mb-0">Result Request Test</h4>
-                    </div>
-                    <div className="card-body">
-                        <div className="row">
-                            <div className="col-sm-12">
-                                <div className="biller-info">
-                                    <span>Final Diagnose</span>
-                                    <input 
-                                        required
-                                        value={newDiagnose} 
-                                        onChange={(e) => setNewDiagnose(e.target.value)} 
-                                        type="text" 
-                                        className="form-control"
-                                    />
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -374,6 +370,15 @@ function Result() {
                                                 />
                                             </td>
                                             <td>
+                                                <button
+                                                    type="button"
+                                                    className="btn bg-danger-light trash remove-btn"
+                                                    onClick={() => removeItemFromAPI(rm.id)}
+                                                >
+                                                    <i className="far fa-trash-alt"></i>
+                                                </button>
+                                            </td>
+                                            <td>
                                                 {rm.isNew && (
                                                     <button
                                                         type="button"
@@ -455,7 +460,29 @@ function Result() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
+            {doctor && doctor.role === "DOCTOR" && result && (
+                <div className="card mb-4">
+                    <div className="card-header">
+                        <h4 className="card-title mb-0">Result Request Test</h4>
+                    </div>
+                    <div className="card-body">
+                        <div className="row">
+                            <div className="col-sm-12">
+                                <div className="biller-info">
+                                    <span>Final Diagnose</span>
+                                    <input 
+                                        required
+                                        value={newDiagnose} 
+                                        onChange={(e) => setNewDiagnose(e.target.value)} 
+                                        type="text" 
+                                        className="form-control"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="row">
                 <div className="col-md-12 text-end">
                     <div className="submit-section">

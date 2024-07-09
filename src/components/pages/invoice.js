@@ -7,13 +7,7 @@ import url from '../../services/url';
 function Invoice() {
     const { id } = useParams();
     const [result, setResult] = useState(null);
-    const [doctorData, setDoctorData] = useState({
-        name: '',
-        department: {
-            name: ""
-        },
-        phonenumber: ''
-    });
+    const [doctorData, setDoctorData] = useState(null);
     const [patientData, setPatientData] = useState(null);
     const [tests, setTests] = useState([]);
     const [medicines, setMedicines] = useState([]);
@@ -24,8 +18,8 @@ function Invoice() {
         const fetchInvoiceData = async () => {
             try {
                 const resultResponse = await api.get(`${url.RESULT.DETAIL}/${id}`);
-                setResult(resultResponse.data);
                 const invoice = resultResponse.data;
+                setResult(invoice);
 
                 const doctorResponse = await api.get(`${url.DOCTOR.LIST}/${invoice.doctor.id}`);
                 setDoctorData(doctorResponse.data);
@@ -81,8 +75,8 @@ function Invoice() {
                                     </div>
                                     <div className="col-md-6">
                                         <p className="invoice-details">
-                                            <strong>Order:</strong> #{result && result.id} <br />
-                                            <strong>Issued:</strong> {result && result.booking.date}
+                                            <strong>Order:</strong> #{result?.id} <br />
+                                            <strong>Issued:</strong> {result?.booking?.date}
                                         </p>
                                     </div>
                                 </div>
@@ -94,9 +88,9 @@ function Invoice() {
                                         <div className="invoice-info">
                                             <strong className="customer-text">Invoice From</strong>
                                             <p className="invoice-details invoice-details-two">
-                                                {doctorData.name} <br />
-                                                {doctorData.department.name}<br />
-                                                {doctorData.phonenumber}<br />
+                                                {doctorData?.name} <br />
+                                                {doctorData?.department?.name}<br />
+                                                {doctorData?.phonenumber}<br />
                                             </p>
                                         </div>
                                     </div>
@@ -104,9 +98,9 @@ function Invoice() {
                                         <div className="invoice-info invoice-info2">
                                             <strong className="customer-text">Invoice To</strong>
                                             <p className="invoice-details">
-                                                {patientData && patientData.name} <br />
-                                                {patientData && patientData.address}, {patientData && patientData.city} <br />
-                                                {patientData && patientData.phonenumber} <br />
+                                                {patientData?.name} <br />
+                                                {patientData?.address}, {patientData?.city} <br />
+                                                {patientData?.phonenumber} <br />
                                             </p>
                                         </div>
                                     </div>
@@ -121,15 +115,14 @@ function Invoice() {
                                         <table className="invoice-table table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th>Description</th>
+                                                    <th>Test</th>
                                                     <th className="text-center">Result</th>
-                                                    <th className="text-end">Total</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {tests.map(test => (
                                                     <tr key={test.id}>
-                                                        <td>{test.device.name}</td>
+                                                        <td>{test.device?.name}</td>
                                                         <td className="text-center">
                                                             <img
                                                                 src={test.thumbnail}
@@ -140,7 +133,6 @@ function Invoice() {
                                                                 style={{ cursor: 'pointer' }}
                                                             />
                                                         </td>
-                                                        <td className="text-end">${test.expense}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -177,7 +169,7 @@ function Invoice() {
                                             <tbody>
                                                 {medicines.map(medicine => (
                                                     <tr key={medicine.id}>
-                                                        <td>{medicine.medicine.name}</td>
+                                                        <td>{medicine.medicine?.name}</td>
                                                         <td className="text-center">{medicine.quantity}</td>
                                                         <td className="text-center">{medicine.description}</td>
                                                     </tr>
