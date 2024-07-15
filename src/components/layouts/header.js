@@ -61,20 +61,7 @@ fetchDoctorProfile();
                     </a>
                     </div>
                     <ul className="main-nav">
-                    <li className="has-submenu megamenu active">
-                        <a style={{marginRight:"10px"}} href="javascript:void(0);">Home</a>
-                    </li>
-                    <li className="searchbar">
-                        <a href="javascript:void(0);"><i className="feather-search"></i></a>
-                        <div className="togglesearch">
-                        <form action="https://doccure.dreamstechnologies.com/html/template/search.html">
-                            <div className="input-group">
-                            <input type="text" className="form-control"/>
-                            <button type="submit" className="btn">Search</button>
-                            </div>
-                        </form>
-                        </div>
-                    </li>
+                    
                     {accessTokenExists ? (
                     <>
                         <li className="login-link">
