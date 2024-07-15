@@ -198,7 +198,9 @@ function Result() {
     
     
             if (doctor && doctor.role === "DOCTOR") {
+                if(result.booking.status<4){
                 await api.put(`${url.BOOKING.UPDATE}${result.bookingId}`);
+                }
                 navigate('/appointment');
             } else if (doctor && doctor.role === "TESTDOCTOR") {
                 window.location.reload();
