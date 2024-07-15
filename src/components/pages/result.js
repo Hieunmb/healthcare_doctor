@@ -314,13 +314,6 @@ function Result() {
                 <div className="card">
                     <div className="card-header">
                         <h4 className="card-title mb-0">Prescribe Medicines</h4>
-                        <button 
-                            type="button" 
-                            className="btn btn-primary btn-sm"
-                            onClick={handleAddMedicine}
-                        >
-                            Add Medicine
-                        </button>
                     </div>
                     <div className="card-body">
                         <div className="table-responsive">
@@ -440,6 +433,13 @@ function Result() {
                                     ))}
                                 </tbody>
                             </table>
+                            <button 
+                            type="button" 
+                            className="btn btn-primary btn-sm"
+                            onClick={handleAddMedicine}
+                        >
+                            Add Medicine
+                        </button>
                         </div>
                     </div>
                 </div>
