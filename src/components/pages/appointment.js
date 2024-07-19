@@ -79,7 +79,7 @@ function Appointment() {
                                     <img src="assets/img/patients/ava.jpg" alt="User Image" />
                                 </a>
                                 <div className="profile-det-info">
-                                <h5 type="button" class="btn btn-rounded btn-primary">#{booking.id}</h5>
+                                <h5 type="button" class="btn btn-rounded btn-primary">#{result.id}</h5>
                                 <h3>
                                     <a href="">
                                         {patient.name} - {result.diagnoseEnd ? result.diagnoseEnd : result.requestTest}
