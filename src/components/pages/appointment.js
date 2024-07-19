@@ -78,7 +78,7 @@ function Appointment() {
                         <div className="appointment-list" key={index}>
                             <div className="profile-info-widget">
                                 <a href="" className="booking-doc-img">
-                                    <img src="assets/img/patients/ava.jpg" alt="User Image" />
+                                    <img src="assets/img/logo.png" alt="User Image" />
                                 </a>
                                 <div className="profile-det-info">
                                 <h5 type="button" class="btn btn-rounded btn-primary">#{result.id}</h5>
