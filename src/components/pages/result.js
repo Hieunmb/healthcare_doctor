@@ -214,10 +214,47 @@ function Result() {
             }
     
     
-            if (doctor && doctor.role === "DOCTOR") {
-                if(result.booking.status<4){
-                await api.put(`${url.BOOKING.UPDATE}${result.bookingId}`);
+            if (doctor && doctor.role == "DOCTOR") {
+                if (result.booking.status < 4) {
+                  
+                  // Send email notification
+                  const emailData = {
+                    to: patient.email,
+                    subject: "You have your medical results",
+                    message: `
+                      <html>
+          <body style="font-family: Arial, sans-serif; color: black;">
+            <h2 style="color: #0e82fd; text-align: center;">Medical Results</h2>
+            <p>Dear ${patient.name},</p>
+            <p>You have received your medical results. Here are the details:</p>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+              <tr>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f4f4f4;">Date</th>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.booking.date}</td>
+              </tr>
+              <tr>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f4f4f4;">Expense</th>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.expense}$</td>
+              </tr>
+              <tr>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f4f4f4;">Last Diagnose</th>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.diagnoseEnd}</td>
+              </tr>
+            </table>
+            <p style="margin: 20px 0;">Thank you for using our service. Have a great day!</p>
+            <p style="margin: 20px 0;">Best regards,</p>
+            <p>Doccure</p>
+            <img src="https://doccure.dreamstechnologies.com/html/template/assets/img/logo.png" alt="User Image" />
+            <p>
+            <a href="http://localhost:3000/view_invoice/${result.id}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: white; background-color: #0e82fd; text-decoration: none; border-radius: 5px; text-align: center;">View Results</a>
+            </p>
+            </body>
+        </html>`
+                  };
+                  await api.put(`${url.BOOKING.UPDATE}${result.bookingId}`);
+                  await api.post(url.EMAIL.SENT, emailData);
                 }
+              
                 navigate('/appointment');
             } else if (doctor && doctor.role === "TESTDOCTOR") {
                 window.location.reload();

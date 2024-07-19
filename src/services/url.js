@@ -40,6 +40,9 @@ const url ={
     },
     MEDICINE:{
         LIST:"/medicine"
+    },
+    EMAIL:{
+        SENT:"/send_email"
     }
 }
 export default url;
