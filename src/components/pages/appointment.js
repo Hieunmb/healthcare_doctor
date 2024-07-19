@@ -59,7 +59,9 @@ function Appointment() {
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             <div className="appointments">
-                {results.map((result, index) => {
+                {results
+                .sort((a, b) => b.id - a.id)
+                .map((result, index) => {
                     const booking = bookings.find(booking => booking.id === result.bookingId);
     
                     if (!booking) {
