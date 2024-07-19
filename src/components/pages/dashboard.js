@@ -68,7 +68,7 @@ function Dashboard() {
     const handleAccept = async (bookingId) => {
         try {
             await api.put(`${url.BOOKING.UPDATE}${bookingId}`);
-            await api.post(`${url.RESULT.CREATE}`, {
+            const result = await api.post(`${url.RESULT.CREATE}`, {
                 bookingId: bookingId,
                 doctorId: doctors.id
             });
@@ -78,7 +78,7 @@ function Dashboard() {
             );
             setBookings(updatedBookings);
             alert("Doctor has accepted the patient.");
-            navigate('/test/' + bookingId);
+            navigate('/test/' + result.data.id);
             window.location.reload();
         } catch (error) {
             console.error("Error updating booking:", error);

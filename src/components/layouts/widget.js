@@ -66,12 +66,6 @@ fetchDoctorProfile();
                                     <span>Appointments</span>
                                 </a>
                             </li>
-                            <li className={activeLink === 'my-patients' ? 'active' : ''}>
-                                <a onClick={() => handleNavigation('my-patients')}>
-                                    <i className="fas fa-user-injured"></i>
-                                    <span>My Patients</span>
-                                </a>
-                            </li>
                         </ul>
                     </nav>
                 </div>

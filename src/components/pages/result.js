@@ -38,7 +38,24 @@ function Result() {
     const closeMedicineModal = () => {
         setShowMedicineModal(false);
     };
+    const formatDate = (date) => {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
+    const calculateAge = (birthday) => {
+        const birthDate = new Date(birthday);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
     useEffect(() => {
         const fetchResultAndTests = async () => {
             try {
@@ -234,7 +251,7 @@ function Result() {
     return (
         <div className="col-md-7 col-lg-8 col-xl-9">
             {patient && (
-                <div className="appointment-list">
+                <div className="appointment-list col-6">
                     <div className="profile-info-widget">
                         <a href="" className="booking-doc-img">
                             <img src="../assets/img/patients/ava.jpg" alt="User Image"/>
@@ -244,15 +261,15 @@ function Result() {
                             <div className="patient-details">
                                 <h5><i className="fas fa-transgender"></i> {patient.gender}</h5>
                                 <h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
-                                <h5><i className="fas fa-envelope"></i>{patient.email}</h5>
                                 <h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
+                                <p><span>Age:</span> {calculateAge(patient.birthday)}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
-
-            <div className="card">
+<div className="row">
+            <div className="card col-6">
                 <div className="card-header">
                     <h4 className="card-title mb=0">Test Results</h4>
                 </div>
@@ -311,7 +328,7 @@ function Result() {
             </div>
 
             {doctor && doctor.role === "DOCTOR" && (
-                <div className="card">
+                <div className="card col-6">
                     <div className="card-header">
                         <h4 className="card-title mb-0">Prescribe Medicines</h4>
                     </div>
@@ -444,7 +461,7 @@ function Result() {
                     </div>
                 </div>
             )}
-
+</div>
             <Modal show={showMedicineModal} onHide={closeMedicineModal} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Select Medicine</Modal.Title>

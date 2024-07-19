@@ -16,6 +16,16 @@ function MedicalExamination() {
     const [patient, setPatient] = useState(null); // State to store the patient's data
     const [result, setResult] = useState({}); // State to store the result data
 
+    const calculateAge = (birthday) => {
+        const birthDate = new Date(birthday);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -115,6 +125,7 @@ function MedicalExamination() {
                             <h5><i className="fas fa-map-marker-alt"></i>{patient.city}, {patient.address}</h5>
                             <h5><i className="fas fa-envelope"></i>{patient.email}</h5>
                             <h5 className="mb-0"><i className="fas fa-phone"></i>{patient.phonenumber}</h5>
+                            <p><span>Age:</span> {calculateAge(patient.birthday)}</p>
                         </div>
                     </div>
                 </div>
