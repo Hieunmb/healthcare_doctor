@@ -83,9 +83,9 @@ function Appointment() {
                                 <div className="profile-det-info">
                                 <h5 type="button" class="btn btn-rounded btn-primary">#{result.id}</h5>
                                 <h3>
-                                    <a href="">
+                                    <p style={{width:'500px',textOverflow:'ellipsis',overflow:"hidden",whiteSpace:"nowrap"}}>
                                         {patient.name} - {result.diagnoseEnd ? result.diagnoseEnd : result.requestTest}
-                                    </a>
+                                    </p>
                                 </h3>
 
                                     <div className="patient-details">
@@ -124,5 +124,4 @@ function Appointment() {
         </div>
     );
 }
-
 export default Appointment;

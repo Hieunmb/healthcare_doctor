@@ -66,18 +66,18 @@ function Result() {
     
                 const patientsResponse = await api.get(url.PATIENT.REGISTER);
                 const foundPatient = patientsResponse.data.find(
-                    patient => patient.id == resultResponse.data.booking.patientId
+                    patient => patient.id === resultResponse.data.booking.patientId
                 );
                 setPatient(foundPatient);
     
                 const testsResponse = await api.get(url.TEST.LIST);
-                const filteredTests = testsResponse.data.filter(test => test.resultId == id);
+                const filteredTests = testsResponse.data.filter(test => test.resultId === id);
     
                 const devicesResponse = await api.get(url.DEVICE.LIST);
                 const devices = devicesResponse.data;
     
                 const updatedTests = filteredTests.map(test => {
-                    const device = devices.find(device => device.id == test.deviceId);
+                    const device = devices.find(device => device.id === test.deviceId);
                     return { ...test, device };
                 });
     
@@ -214,7 +214,7 @@ function Result() {
             }
     
     
-            if (doctor && doctor.role == "DOCTOR") {
+            if (doctor && doctor.role === "DOCTOR") {
                 if (result.booking.status < 4) {
                   
                   // Send email notification
