@@ -224,6 +224,7 @@ function Result() {
                     message: `
                       <html>
           <body style="font-family: Arial, sans-serif; color: black;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
             <h2 style="color: #0e82fd; text-align: center;">Medical Results</h2>
             <p>Dear ${patient.name},</p>
             <p>You have received your medical results. Here are the details:</p>
@@ -234,11 +235,11 @@ function Result() {
               </tr>
               <tr>
                 <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f4f4f4;">Expense</th>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.expense}$</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${tests.reduce((total, test) => total + test.expense, 0)}$</td>
               </tr>
               <tr>
                 <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f4f4f4;">Last Diagnose</th>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.diagnoseEnd}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${newDiagnose}</td>
               </tr>
             </table>
             <p style="margin: 20px 0;">Thank you for using our service. Have a great day!</p>
@@ -248,6 +249,7 @@ function Result() {
             <p>
             <a href="http://localhost:3000/view_invoice/${result.id}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: white; background-color: #0e82fd; text-decoration: none; border-radius: 5px; text-align: center;">View Results</a>
             </p>
+            </div>
             </body>
         </html>`
                   };
