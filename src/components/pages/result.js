@@ -66,18 +66,18 @@ function Result() {
     
                 const patientsResponse = await api.get(url.PATIENT.REGISTER);
                 const foundPatient = patientsResponse.data.find(
-                    patient => patient.id === resultResponse.data.booking.patientId
+                    patient => patient.id == resultResponse.data.booking.patientId
                 );
                 setPatient(foundPatient);
     
                 const testsResponse = await api.get(url.TEST.LIST);
-                const filteredTests = testsResponse.data.filter(test => test.resultId === id);
+                const filteredTests = testsResponse.data.filter(test => test.resultId == id);
     
                 const devicesResponse = await api.get(url.DEVICE.LIST);
                 const devices = devicesResponse.data;
     
                 const updatedTests = filteredTests.map(test => {
-                    const device = devices.find(device => device.id === test.deviceId);
+                    const device = devices.find(device => device.id == test.deviceId);
                     return { ...test, device };
                 });
     
@@ -366,7 +366,7 @@ function Result() {
                 </div>
             </div>
 
-            {doctor && doctor.role === "DOCTOR" && (
+            {doctor && doctor.role == "DOCTOR" && (
                 <div className="card col-6">
                     <div className="card-header">
                         <h4 className="card-title mb-0">Prescribe Medicines</h4>
@@ -378,7 +378,7 @@ function Result() {
                                     <tr>
                                         <th>Medicine</th>
                                         <th>Quantity</th>
-                                        <th>Description</th>
+                                        <th>Note</th>
                                         <th>Remove</th>
                                     </tr>
                                 </thead>
@@ -418,6 +418,7 @@ function Result() {
                                                     value={rm.description}
                                                     onChange={(e) => handleMedicineChange(index, 'description', e.target.value, false)}
                                                     disabled={!rm.isNew}
+                                                    style={{ width: '150px' }} 
                                                 />
                                             </td>
                                             <td>
@@ -473,6 +474,7 @@ function Result() {
                                                     type="text"
                                                     className="form-control"
                                                     value={rm.description}
+                                                    style={{ width: '150px' }} 
                                                     onChange={(e) => handleMedicineChange(index, 'description', e.target.value, true)}
                                                 />
                                             </td>
