@@ -21,6 +21,41 @@ function Result() {
     const [showMedicineModal, setShowMedicineModal] = useState(false);
     const [modalImageSrc, setModalImageSrc] = useState('');
     const [canSave, setCanSave] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const loaderStyle = `
+    .loader {
+    border: 10px solid #f3f3f3; /* Light grey */
+    border-top: 10px solid  #0356fd; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    margin: auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  `;
 
     const openImageModal = (imageSrc) => {
         setModalImageSrc(imageSrc);
@@ -169,7 +204,7 @@ function Result() {
 
     const handleSave = async () => {
         if (!canSave) return;
-    
+        setIsLoading(true);
         try {
             if (doctor && doctor.role === "DOCTOR") {
                 await handleDiagnoseUpdate();
@@ -256,6 +291,7 @@ function Result() {
                   await api.put(`${url.BOOKING.UPDATE}${result.bookingId}`);
                   await api.post(url.EMAIL.SENT, emailData);
                 }
+                setIsLoading(false);
               
                 navigate('/appointment');
             } else if (doctor && doctor.role === "TESTDOCTOR") {
@@ -307,6 +343,9 @@ function Result() {
                     </div>
                 </div>
             )}
+
+    
+
 <div className="row">
             <div className="card col-6">
                 <div className="card-header">
@@ -557,8 +596,16 @@ function Result() {
                     </div>
                 </div>
             </div>
+            <style>{loaderStyle}</style>
+            {isLoading && (
+            <div className="overlay">
+      <style dangerouslySetInnerHTML={{ __html: loaderStyle }} />
+      <div className="loader"></div>
+    </div>
+    )}
         </div>
     );
 }
+
 
 export default Result;
