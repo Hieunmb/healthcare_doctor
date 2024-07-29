@@ -246,7 +246,7 @@ function Result() {
             }
     
     
-            if (doctor && doctor.role == "DOCTOR") {
+            if (doctor && doctor.role === "DOCTOR") {
                 if (result.booking.status < 4) {
                   
                   // Send email notification
@@ -340,6 +340,9 @@ function Result() {
                     </div>
                 </div>
             )}
+
+    
+
 <div className="row">
             <div className="card col-6">
                 <div className="card-header">
@@ -399,7 +402,7 @@ function Result() {
                 </div>
             </div>
 
-            {doctor && doctor.role === "DOCTOR" && (
+            {doctor && doctor.role == "DOCTOR" && (
                 <div className="card col-6">
                     <div className="card-header">
                         <h4 className="card-title mb-0">Prescribe Medicines</h4>
@@ -411,7 +414,7 @@ function Result() {
                                     <tr>
                                         <th>Medicine</th>
                                         <th>Quantity</th>
-                                        <th>Description</th>
+                                        <th>Note</th>
                                         <th>Remove</th>
                                     </tr>
                                 </thead>
@@ -451,6 +454,7 @@ function Result() {
                                                     value={rm.description}
                                                     onChange={(e) => handleMedicineChange(index, 'description', e.target.value, false)}
                                                     disabled={!rm.isNew}
+                                                    style={{ width: '150px' }} 
                                                 />
                                             </td>
                                             <td>
@@ -506,6 +510,7 @@ function Result() {
                                                     type="text"
                                                     className="form-control"
                                                     value={rm.description}
+                                                    style={{ width: '150px' }} 
                                                     onChange={(e) => handleMedicineChange(index, 'description', e.target.value, true)}
                                                 />
                                             </td>
@@ -588,8 +593,16 @@ function Result() {
                     </div>
                 </div>
             </div>
+            <style>{loaderStyle}</style>
+            {isLoading && (
+            <div className="overlay">
+      <style dangerouslySetInnerHTML={{ __html: loaderStyle }} />
+      <div className="loader"></div>
+    </div>
+    )}
         </div>
     );
 }
+
 
 export default Result;
