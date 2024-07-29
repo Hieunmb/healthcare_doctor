@@ -1,46 +1,70 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import url from "../../services/url";
 
 function Appointment() {
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
-    const [doctors, setDoctors] = useState({
+    const [doctor, setDoctor] = useState({
         id: 0,
-        name: ''
+        name: '',
+        role: ''
     });
-    const [results, setResults] = useState([{}]);
+    const [results, setResults] = useState([]);
     const [bookings, setBookings] = useState([]);
     const [patients, setPatients] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [resultsResponse, bookingsResponse, patientsResponse] = await Promise.all([
-                    api.get(url.RESULT.LIST),
-                    api.get(url.BOOKING.LIST),
-                    api.get(url.PATIENT.REGISTER)
-                ]);
-
                 const doctorResponse = await api.get(url.DOCTOR.PROFILE, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                     }
                 });
 
-                const filteredResults = resultsResponse.data.filter(result => result.doctorId === doctorResponse.data.id);
+                setDoctor(doctorResponse.data);
 
-                setResults(filteredResults);
+                let resultsResponse;
+                if (doctorResponse.data.role === 'TESTDOCTOR') {
+                    // Fetch results specifically for TESTDOCTOR role
+                    resultsResponse = await api.get(`${url.RESULT.LIST}?role=TESTDOCTOR&status=3`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    });
+                } else {
+                    // Fetch results for other roles
+                    resultsResponse = await api.get(url.RESULT.LIST, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    });
+                }
+
+                const [bookingsResponse, patientsResponse] = await Promise.all([
+                    api.get(url.BOOKING.LIST, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    }),
+                    api.get(url.PATIENT.REGISTER, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    })
+                ]);
+
+                setResults(resultsResponse.data);
                 setBookings(bookingsResponse.data);
                 setPatients(patientsResponse.data);
-                setDoctors(doctorResponse.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
 
         fetchData();
-    }, []);
+    }, [accessToken]);
 
     const navigate = useNavigate();
 
@@ -81,7 +105,7 @@ function Appointment() {
                                     <img src="assets/img/patients/ava.jpg" alt="User Image" />
                                 </a>
                                 <div className="profile-det-info">
-                                <h5 type="button" class="btn btn-rounded btn-primary">#{result.id}</h5>
+                                <h5 type="button" className="btn btn-rounded btn-primary">#{result.id}</h5>
                                 <h3>
                                     <a href="">
                                         {patient.name} - {result.diagnoseEnd ? result.diagnoseEnd : result.requestTest}
@@ -97,23 +121,31 @@ function Appointment() {
                                 </div>
                             </div>
                             <div className="appointment-action">
-                                {booking.status >= 4 ? (
-                                    <>
-                                    <a href="" onClick={() => handleViewInvoice(result.id)} className="btn btn-sm bg-warning-light">
-                                        <i className="fa-solid fa-file-invoice"></i> View Invoice
-                                    </a>
+                                {doctor.role === 'TESTDOCTOR' ? (
                                     <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
-                                    <i className="fa-solid fa-pen"></i> Edit
-                                </a>
-                                </>
+                                        <i className="fa-solid fa-eye"></i> Update Result
+                                    </a>
                                 ) : (
                                     <>
-                                        <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
-                                            <i className="fa-solid fa-eye"></i> View Result
-                                        </a>
-                                        <a href="" onClick={() => handleCreateTest(result.id)} className="btn btn-sm bg-info-light">
-                                            <i className="fa-solid fa-plus"></i> Create test
-                                        </a>
+                                        {booking.status >= 4 ? (
+                                            <>
+                                                <a href="" onClick={() => handleViewInvoice(result.id)} className="btn btn-sm bg-warning-light">
+                                                    <i className="fa-solid fa-file-invoice"></i> View Invoice
+                                                </a>
+                                                <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
+                                                    <i className="fa-solid fa-pen"></i> Edit
+                                                </a>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <a href="" onClick={() => handleViewResult(result.id)} className="btn btn-sm bg-success-light">
+                                                    <i className="fa-solid fa-eye"></i> View Result
+                                                </a>
+                                                <a href="" onClick={() => handleCreateTest(result.id)} className="btn btn-sm bg-info-light">
+                                                    <i className="fa-solid fa-plus"></i> Create test
+                                                </a>
+                                            </>
+                                        )}
                                     </>
                                 )}
                             </div>
