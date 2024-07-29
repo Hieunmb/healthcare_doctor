@@ -428,6 +428,7 @@ function Result() {
                                                     value={rm.medicineId}
                                                     onChange={(e) => handleMedicineChange(index, 'medicineId', e.target.value, false)}
                                                     disabled={!rm.isNew}
+                                                    style={{ width: '100px' }}
                                                 >
                                                     {medicines.map(med => (
                                                         <option key={med.id} value={med.id}>
@@ -502,6 +503,7 @@ function Result() {
                                                     className="form-control"
                                                     value={rm.quantity}
                                                     onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value, true)}
+                                                    min="0"
                                                 />
                                             </td>
                                             <td>
